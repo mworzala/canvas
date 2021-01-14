@@ -1,0 +1,7 @@
+.gradle
+.idea
+build
+extensions
+minecraft_data
+
+notes.md
