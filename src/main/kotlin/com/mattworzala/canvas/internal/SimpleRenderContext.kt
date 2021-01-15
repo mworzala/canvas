@@ -11,6 +11,7 @@ class SimpleRenderContext<P : Props>(
     private val component: Component<P>
 ) : RenderContext<P> {
     private val children: Int2ObjectMap<RenderContext<*>> = Int2ObjectOpenHashMap()
+    private val cleanupEffects: MutableList<Effect> = mutableListOf()
 
     override val state = StateDispenser(this) { println("An error has occurred, need to cleanup here.") }
 
@@ -49,7 +50,11 @@ class SimpleRenderContext<P : Props>(
     override fun cleanup() {
         children.values.forEach(RenderContext<*>::cleanup)
 
-        //todo cleanup tasks
+        cleanupEffects.forEach(Effect::invoke)
+    }
+
+    override fun onCleanup(handler: Effect) {
+        cleanupEffects.add(handler)
     }
 
     override val width: Int get() = component.width
