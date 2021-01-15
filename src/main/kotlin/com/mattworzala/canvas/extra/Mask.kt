@@ -1,6 +1,6 @@
 package com.mattworzala.canvas.extra
 
-import com.mattworzala.canvas.Component
+import com.mattworzala.canvas.RenderContext
 import com.mattworzala.canvas.asSlot
 import net.minestom.server.item.ItemStack
 import net.minestom.server.utils.validate.Check
@@ -25,7 +25,7 @@ class Mask {
 
     infix fun Char.with(item: ItemStack): Pair<Char, ItemStack> = this to item
 
-    internal fun apply(component: Component<*>) {
+    internal fun apply(component: RenderContext<*>) {
         Check.argCondition(component.size != pattern?.length, "Component and pattern must be the same size!")
 
         for (i in 0 until component.size) {
@@ -40,7 +40,7 @@ class Mask {
     }
 }
 
-fun Component<*>.mask(handler: Mask.() -> Unit) {
+fun RenderContext<*>.mask(handler: Mask.() -> Unit) {
     val mask = Mask()
     mask.handler()
     mask.apply(this)

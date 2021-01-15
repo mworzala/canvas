@@ -5,19 +5,18 @@ import net.minestom.server.utils.time.TimeUnit
 
 typealias Effect = () -> Unit
 
-fun <T> Component<*>.useState(default: T) = state.get(default)
-
-fun Component<*>.useEffectNC(handler: Effect) = useEffect { handler(); null }
+fun <T> RenderContext<*>.useState(default: T) = state.get(default)
 
 // todo this could use a rework.
 @Suppress("UNUSED_VALUE")
-fun Component<*>.useEffect(vararg deps: Any, handler: () -> Effect?) {
+fun RenderContext<*>.useEffect(vararg deps: Any, handler: () -> Effect?) {
     var cleanup by state.UNSAFE_get<Effect?>(null)
     var oldDeps by state.UNSAFE_get<Array<out Any>?>(null)
 
     // Will only be the case on first render, since `deps` cannot be null.
     if (oldDeps == null) {
-        cleanupTasks.add { cleanup?.invoke() }
+        //todo cleanup tasks
+//        cleanupTasks.add { cleanup?.invoke() }
     }
 
     if (deps.contentEquals(oldDeps))
@@ -28,7 +27,7 @@ fun Component<*>.useEffect(vararg deps: Any, handler: () -> Effect?) {
     cleanup = handler()
 }
 
-fun Component<*>.useUpdate(interval: Long, unit: TimeUnit, func: Effect) = useEffect {
+fun RenderContext<*>.useUpdate(interval: Long, unit: TimeUnit, func: Effect) = useEffect {
     val task = MinecraftServer.getSchedulerManager().buildTask(func)
         .delay(interval, unit).repeat(interval, unit).schedule()
     return@useEffect task::cancel

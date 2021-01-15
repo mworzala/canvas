@@ -1,6 +1,7 @@
 package com.mattworzala.canvas
 
 import com.google.common.collect.Queues
+import com.mattworzala.canvas.internal.SimpleRenderContext
 import net.minestom.server.MinecraftServer
 import net.minestom.server.entity.Player
 import net.minestom.server.event.inventory.InventoryCloseEvent
@@ -16,7 +17,7 @@ import java.util.*
 //todo needs a lot of cleanup (update task is generally not amazing)
 class Canvas(private val player: Player) : SlotHolder {
     private lateinit var inventory: Inventory
-    private var root: Component<*>? = null
+    private var root: RenderContext<*>? = null
     private lateinit var items: Array<Slot?>
 
     override var width: Int = 0
@@ -38,8 +39,8 @@ class Canvas(private val player: Player) : SlotHolder {
         inventory = Inventory(InventoryType.CHEST_5_ROW, "Canvas Test")
         width = 9; height = 5
         items = arrayOfNulls(inventory.size)
-        root = Component(this, 0, component)
-        (root!! as Component<P>).apply {
+        root = SimpleRenderContext(this, 0, component)
+        (root!! as RenderContext<P>).apply {
             render(props)
             update()
         }
@@ -77,13 +78,10 @@ class Canvas(private val player: Player) : SlotHolder {
 
         val unsafeSlot = items[event.slot] ?: return
         unsafeSlot.handleClick(event)
-        root?.update()
     }
 
     private fun handleClose(event: InventoryCloseEvent) {
         if (event.inventory != inventory) return
-
-        println("HANDLING INVENTORY CLOSE")
         root?.cleanup()
     }
 

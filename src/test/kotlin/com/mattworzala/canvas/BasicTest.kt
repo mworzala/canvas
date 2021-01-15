@@ -45,7 +45,7 @@ val SingleItemFromProps = FunctionComponent<ItemProps>(1, 1) {
     }
 }
 
-fun Component<*>.singleItem(index: Int, propHandler: ItemProps.() -> Unit = {}) {
+fun RenderContext<*>.singleItem(index: Int, propHandler: ItemProps.() -> Unit = {}) {
     child(index, SingleItemFromProps, ItemProps(), propHandler)
 }
 
@@ -71,7 +71,6 @@ val CounterComponent = FunctionComponent<Props>(3, 1) {
     slot(2) {
         onClick {
             counter = min(64, counter + 1)
-            println("Increment $counter")
         }
         item {
             material = Material.GREEN_CONCRETE
@@ -80,6 +79,6 @@ val CounterComponent = FunctionComponent<Props>(3, 1) {
     }
 }
 
-fun Component<*>.counter(index: Int) {
+fun RenderContext<*>.counter(index: Int) {
     child(index, CounterComponent, BlankProps, {})
 }
