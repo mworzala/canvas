@@ -1,28 +1,31 @@
 package com.mattworzala.canvas
 
-import com.mattworzala.canvas.internal.UseStateDelegate
 import net.minestom.server.MinecraftServer
 import net.minestom.server.utils.time.TimeUnit
 
 typealias Effect = () -> Unit
 
-fun <T> Component<*>.useState(default: T) = UseStateDelegate(this, default)
+fun <T> Component<*>.useState(default: T) = state.get(default)
 
 fun Component<*>.useEffectNC(handler: Effect) = useEffect { handler(); null }
 
+// todo this could use a rework.
 @Suppress("UNUSED_VALUE")
 fun Component<*>.useEffect(vararg deps: Any, handler: () -> Effect?) {
-    var cleanup by useState<Effect?>(null)
-    var oldDeps by useState<Array<out Any>?>(null)
+    var cleanup by state.UNSAFE_get<Effect?>(null)
+    var oldDeps by state.UNSAFE_get<Array<out Any>?>(null)
 
-    if (oldDeps != null && deps.contentEquals(oldDeps))
+    // Will only be the case on first render, since `deps` cannot be null.
+    if (oldDeps == null) {
+        cleanupTasks.add { cleanup?.invoke() }
+    }
+
+    if (deps.contentEquals(oldDeps))
         return
 
     cleanup?.invoke()
     oldDeps = deps
     cleanup = handler()
-
-    //todo will not call cleanup on component cleanup.
 }
 
 fun Component<*>.useUpdate(interval: Long, unit: TimeUnit, func: Effect) = useEffect {

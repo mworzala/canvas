@@ -23,6 +23,7 @@ abstract class ComponentHolder : SlotHolder {
         child.render(props)
     }
 
+    //todo currently unused, can probably remove.
     open fun update(): Unit = children.values.forEach(ComponentHolder::update)
 
     internal fun cleanup() {

@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 public class MainDemo {
 
@@ -47,12 +48,16 @@ public class MainDemo {
 
         globalEventHandler.addEventCallback(PlayerChatEvent.class, event -> {
             Canvas canvas = new Canvas(event.getPlayer());
-            if (event.getMessage().equalsIgnoreCase("basic")) {
-                canvas.draw(BasicTestKt.getBasicItems(), BlankProps.INSTANCE);
-            } else {
-                canvas.draw(FlashingTestKt.getFlashingInv(), BlankProps.INSTANCE);
+            switch (event.getMessage().toLowerCase()) {
+                case "basic":
+                    canvas.draw(BasicTestKt.getBasicItems(), BlankProps.INSTANCE);
+                    break;
+                case "flash":
+                    canvas.draw(FlashingTestKt.getFlashingInv(), BlankProps.INSTANCE);
+                    break;
+                default:
+                    event.getPlayer().sendMessage("No inventory named '" + event.getMessage() + "'!");
             }
-//            canvas.draw(BasicTestKt.getBasicItems(), Unit.INSTANCE);
         });
 
         // Start the server on port 25565

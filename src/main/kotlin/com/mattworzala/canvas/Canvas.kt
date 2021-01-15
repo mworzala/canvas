@@ -3,6 +3,7 @@ package com.mattworzala.canvas
 import com.google.common.collect.Queues
 import net.minestom.server.MinecraftServer
 import net.minestom.server.entity.Player
+import net.minestom.server.event.inventory.InventoryCloseEvent
 import net.minestom.server.event.inventory.InventoryPreClickEvent
 import net.minestom.server.inventory.Inventory
 import net.minestom.server.inventory.InventoryType
@@ -12,6 +13,7 @@ import java.util.*
 /**
  * Represents a renderable document for a player.
  */
+//todo needs a lot of cleanup (update task is generally not amazing)
 class Canvas(private val player: Player) : SlotHolder {
     private lateinit var inventory: Inventory
     private var root: Component<*>? = null
@@ -22,17 +24,15 @@ class Canvas(private val player: Player) : SlotHolder {
     override var height: Int = 0
         private set
 
-    @Volatile
-    private var canRender = false
     private val dirty: Queue<Int> = Queues.newConcurrentLinkedQueue()
 
     init {
         MinecraftServer.getGlobalEventHandler().addEventCallback(InventoryPreClickEvent::class.java, ::handleClick)
+        MinecraftServer.getGlobalEventHandler().addEventCallback(InventoryCloseEvent::class.java, ::handleClose)
         MinecraftServer.getSchedulerManager().buildTask(::update).repeat(1, TimeUnit.TICK).schedule()
     }
 
     fun <P : Props> draw(component: FunctionComponent<P>, props: P) {
-        canRender = false
         root?.cleanup()
 
         inventory = Inventory(InventoryType.CHEST_5_ROW, "Canvas Test")
@@ -45,21 +45,16 @@ class Canvas(private val player: Player) : SlotHolder {
         }
 
         player.openInventory(inventory)
-        canRender = true
     }
 
     private fun update() {
-        if (canRender)
-            root?.update()
         drawToPlayer()
     }
 
     private fun drawToPlayer() {
-        if (!canRender) return
         while (!dirty.isEmpty()) {
             val slot = dirty.poll()
             if (items[slot] == null) continue
-            println("Sending $slot: ${items[slot]!!.item.material} ${items[slot]!!.item.amount}")
             inventory.setItemStack(slot, items[slot]!!.item)
         }
     }
@@ -82,6 +77,14 @@ class Canvas(private val player: Player) : SlotHolder {
 
         val unsafeSlot = items[event.slot] ?: return
         unsafeSlot.handleClick(event)
+        root?.update()
+    }
+
+    private fun handleClose(event: InventoryCloseEvent) {
+        if (event.inventory != inventory) return
+
+        println("HANDLING INVENTORY CLOSE")
+        root?.cleanup()
     }
 
 }

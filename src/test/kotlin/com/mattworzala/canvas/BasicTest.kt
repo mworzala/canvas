@@ -51,7 +51,6 @@ fun Component<*>.singleItem(index: Int, propHandler: ItemProps.() -> Unit = {}) 
 
 val CounterComponent = FunctionComponent<Props>(3, 1) {
     var counter by useState(1)
-    println("Counter: $counter")
 
     // Decrement
     slot(0) {
