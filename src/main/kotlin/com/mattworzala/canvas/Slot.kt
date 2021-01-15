@@ -35,6 +35,8 @@ interface SlotHolder {
     val height: Int
     val size: Int get() = width * height
 
+    fun getIndex(x: Int, y: Int) = x + (y * width)
+
     fun get(index: Int): Slot
 
     fun set(index: Int, slot: Slot)
@@ -46,7 +48,11 @@ interface SlotHolder {
 
     /* Nicer Syntax */
 
+    fun slot(x: Int, y: Int, handler: SlotFunc) = slot(getIndex(x, y), handler)
+
     fun slot(index: Int, handler: SlotFunc) = handler(get(index))
+
+    fun item(x: Int, y: Int, handler: ItemFunc) = item(getIndex(x, y), handler)
 
     fun item(index: Int, handler: ItemFunc) = get(index).item(handler)
 }

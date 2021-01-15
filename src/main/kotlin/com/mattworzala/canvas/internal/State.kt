@@ -1,6 +1,8 @@
 package com.mattworzala.canvas.internal
 
+import com.mattworzala.canvas.FORCE_STATE_UPDATE
 import com.mattworzala.canvas.RenderContext
+import com.mattworzala.canvas.ext.has
 import it.unimi.dsi.fastutil.ints.IntArrayList
 import org.jetbrains.annotations.Contract
 import kotlin.reflect.KProperty
@@ -10,7 +12,7 @@ private const val MAX_RENDER_DEPTH = 25
 private const val ERR_RENDER_ORDER = "Rendering order incorrectly. This should not have occurred."
 private const val ERR_STATE_REMOVAL = "State was removed in a non-deterministic manner. See documentation on state usage."
 private const val ERR_RENDER_DEPTH = "Maximum render depth reached. This likely indicates a render loop in one of your components."
-private const val ERR_INVALID_UPDATE = "A state update was made to a cleaned up component. This indicates that an effect was not cleaned up properly."
+private const val ERR_INVALID_UPDATE = "A state update was made to a component which is not rendered. This indicates that an effect was not cleaned up properly."
 
 class StateDispenser(
     private val context: RenderContext<*>,
@@ -61,7 +63,10 @@ class StateDelegate<T> internal constructor(private val context: RenderContext<*
     operator fun getValue(nothing: Any?, property: KProperty<*>): T = value
 
     operator fun setValue(nothing: Any?, property: KProperty<*>, value: T) {
-        if (this.value == value)
+        if (!context.rendered)
+            throw IllegalStateException(ERR_INVALID_UPDATE)
+
+        if (this.value == value && !context.flags.has(FORCE_STATE_UPDATE))
             return
 
         this.value = value

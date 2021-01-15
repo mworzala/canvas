@@ -8,8 +8,9 @@ import com.mattworzala.canvas.useState
 fun <P : Props> memo(component: Component<P>): Component<P> = MemoComponent(component)
 
 private class MemoComponent<P : Props>(val component: Component<P>) : Component<P> {
-    override val width = component.width
-    override val height = component.height
+    override val width get() = component.width
+    override val height get() = component.height
+    override val flags get() = component.flags
 
     override val handler: RenderContext<P>.() -> Unit = {
         var lastProps by useState<P?>(null)

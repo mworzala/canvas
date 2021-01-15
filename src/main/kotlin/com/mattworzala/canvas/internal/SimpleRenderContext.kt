@@ -1,6 +1,7 @@
 package com.mattworzala.canvas.internal
 
 import com.mattworzala.canvas.*
+import com.mattworzala.canvas.ext.has
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import java.util.*
@@ -14,6 +15,8 @@ class SimpleRenderContext<P : Props>(
     private val cleanupEffects: MutableList<Effect> = mutableListOf()
 
     override val state = StateDispenser(this) { println("An error has occurred, need to cleanup here.") }
+
+    override var rendered = false
 
     /* Rendering */
 
@@ -34,11 +37,12 @@ class SimpleRenderContext<P : Props>(
 
     @Synchronized
     override fun render(props: P?) {
+        rendered = true
         if (props != null)
             _props = props
 
         // Reset covered slots if flagged
-        if (false) apply((0 until size).toList(), Slot::reset)
+        if (flags has CLEAR_ON_RENDER) apply((0 until size).toList(), Slot::reset)
 
         // Call renderer
         state.pushIndex()
@@ -51,12 +55,14 @@ class SimpleRenderContext<P : Props>(
         children.values.forEach(RenderContext<*>::cleanup)
 
         cleanupEffects.forEach(Effect::invoke)
+        rendered = false
     }
 
     override fun onCleanup(handler: Effect) {
         cleanupEffects.add(handler)
     }
 
+    override val flags: Int get() = component.flags
     override val width: Int get() = component.width
     override val height: Int get() = component.height
 
