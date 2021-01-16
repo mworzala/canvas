@@ -4,7 +4,6 @@ import com.mattworzala.canvas.BasicTestKt;
 import com.mattworzala.canvas.BlankProps;
 import com.mattworzala.canvas.Canvas;
 import com.mattworzala.canvas.FlashingTestKt;
-import kotlin.Unit;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.GlobalEventHandler;
@@ -21,7 +20,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 public class MainDemo {
 

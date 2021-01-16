@@ -12,10 +12,11 @@ interface Component<P : Props> {
 class FunctionComponent<P : Props>(
     override val width: Int,
     override val height: Int,
-    override val handler: RenderContext<P>.() -> Unit,
-    vararg flags: Int
+    vararg flags: Int = intArrayOf(),
+    override val handler: RenderContext<P>.() -> Unit
 ) : Component<P> {
     override val flags: Int = flags.reduce { acc, i -> acc or i }
 }
 
-fun <P : Props> component(width: Int, height: Int, handler: RenderContext<P>.() -> Unit) = FunctionComponent(width, height, handler)
+fun <P : Props> component(width: Int, height: Int, vararg flags: Int = intArrayOf(), handler: RenderContext<P>.() -> Unit) =
+    FunctionComponent(width, height, *flags, handler = handler)
