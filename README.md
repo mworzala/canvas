@@ -9,6 +9,17 @@ It is worth noting that performance at the moment is unstable at best. It is sti
 development, however the API should not change much so if you are interested in giving it a try,
 go ahead.
 
-### Usage
+### Usage [![](https://jitpack.io/v/mworzala/adventure-platform-minestom.svg)](https://jitpack.io/#mworzala/canvas)
 Documentation will be made eventually, however for now there are some samples
 [here](src/test/kotlin/com/mattworzala/canvas).
+
+Canvas is available on [Jitpack](https://jitpack.io/#mworzala/canvas):
+```groovy
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    implementation 'com.github.mworzala:adventure-platform-minestom:VERSION'
+}
+```
