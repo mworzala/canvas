@@ -26,8 +26,6 @@ class Slot internal constructor(
         item = ItemStack(Material.AIR, 1)
         onClick = null
     }
-
-    internal fun handleClick(event: InventoryPreClickEvent) = onClick?.invoke(this, event)
 }
 
 interface SlotHolder {

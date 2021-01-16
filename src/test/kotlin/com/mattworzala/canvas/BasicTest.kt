@@ -1,3 +1,5 @@
+@file:JvmName("BasicTest")
+
 package com.mattworzala.canvas
 
 import com.mattworzala.canvas.extra.col
@@ -9,6 +11,14 @@ import net.minestom.server.item.Material
 import kotlin.math.max
 import kotlin.math.min
 
+/* "Exported" Components */
+
+fun RenderContext<*>.singleItem(index: Int, propHandler: ItemProps.() -> Unit = {}) =
+    child(index, SingleItemFromProps, ItemProps(), propHandler)
+
+fun RenderContext<*>.counter(index: Int) = child(index, BasicCounter, BlankProps, {})
+
+@JvmField
 val BasicItems = FunctionComponent<Props>(9, 5) {
     get(0).item {
         material = Material.GOLD_INGOT
@@ -37,6 +47,7 @@ val BasicItems = FunctionComponent<Props>(9, 5) {
 }
 
 class ItemProps(var item: ItemStack = ItemStack(Material.GOLD_INGOT, 1)) : Props()
+@JvmField
 val SingleItemFromProps = FunctionComponent<ItemProps>(1, 1) {
     val slot = get(0)
     slot.item = props.item
@@ -45,11 +56,8 @@ val SingleItemFromProps = FunctionComponent<ItemProps>(1, 1) {
     }
 }
 
-fun RenderContext<*>.singleItem(index: Int, propHandler: ItemProps.() -> Unit = {}) {
-    child(index, SingleItemFromProps, ItemProps(), propHandler)
-}
-
-val CounterComponent = FunctionComponent<Props>(3, 1) {
+@JvmField
+val BasicCounter = FunctionComponent<Props>(3, 1) {
     var counter by useState(1)
 
     // Decrement
@@ -79,6 +87,3 @@ val CounterComponent = FunctionComponent<Props>(3, 1) {
     }
 }
 
-fun RenderContext<*>.counter(index: Int) {
-    child(index, CounterComponent, BlankProps, {})
-}

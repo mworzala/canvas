@@ -15,7 +15,7 @@ class FunctionComponent<P : Props>(
     vararg flags: Int = intArrayOf(),
     override val handler: RenderContext<P>.() -> Unit
 ) : Component<P> {
-    override val flags: Int = flags.reduce { acc, i -> acc or i }
+    override val flags: Int = if (flags.isEmpty()) 0 else flags.reduce { acc, i -> acc or i }
 }
 
 fun <P : Props> component(width: Int, height: Int, vararg flags: Int = intArrayOf(), handler: RenderContext<P>.() -> Unit) =

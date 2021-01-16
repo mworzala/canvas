@@ -1,3 +1,5 @@
+@file:JvmName("FlashingTest")
+
 package com.mattworzala.canvas
 
 import com.mattworzala.canvas.extra.mask
@@ -7,6 +9,7 @@ import net.minestom.server.utils.time.TimeUnit
 
 val WHITE_STAINED_GLASS_PANE = Material.WHITE_STAINED_GLASS_PANE.id
 
+@JvmField
 val FlashingInv = component<Props>(9, 5) {
     var color: Int by useState(0)
     useUpdate(5, TimeUnit.TICK) {

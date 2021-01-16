@@ -42,12 +42,16 @@ class SimpleRenderContext<P : Props>(
             _props = props
 
         // Reset covered slots if flagged
-        if (flags has CLEAR_ON_RENDER) apply((0 until size).toList(), Slot::reset)
+//        if (flags has CLEAR_ON_RENDER) apply((0 until size).toList(), Slot::reset)
 
         // Call renderer
         state.pushIndex()
         component(this)
         state.popIndex()
+    }
+
+    override fun update() {
+        //todo fixed update
     }
 
     @Synchronized

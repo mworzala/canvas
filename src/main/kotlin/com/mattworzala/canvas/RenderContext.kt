@@ -23,6 +23,8 @@ interface RenderContext<P : Props> : SlotHolder {
 
     fun render(props: P? = null)
 
+    fun update()
+
     fun cleanup()
 
     fun onCleanup(handler: Effect)

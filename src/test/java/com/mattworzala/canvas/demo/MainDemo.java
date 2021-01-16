@@ -1,9 +1,6 @@
 package com.mattworzala.canvas.demo;
 
-import com.mattworzala.canvas.BasicTestKt;
-import com.mattworzala.canvas.BlankProps;
-import com.mattworzala.canvas.Canvas;
-import com.mattworzala.canvas.FlashingTestKt;
+import com.mattworzala.canvas.*;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.GlobalEventHandler;
@@ -45,13 +42,14 @@ public class MainDemo {
         });
 
         globalEventHandler.addEventCallback(PlayerChatEvent.class, event -> {
-            Canvas canvas = new Canvas(event.getPlayer());
+            Canvas canvas = CanvasProvider.canvas(event.getPlayer());
+
             switch (event.getMessage().toLowerCase()) {
                 case "basic":
-                    canvas.draw(BasicTestKt.getBasicItems(), BlankProps.INSTANCE);
+                    canvas.render(BasicTest.BasicItems, BlankProps.INSTANCE);
                     break;
                 case "flash":
-                    canvas.draw(FlashingTestKt.getFlashingInv(), BlankProps.INSTANCE);
+                    canvas.render(FlashingTest.FlashingInv, BlankProps.INSTANCE);
                     break;
                 default:
                     event.getPlayer().sendMessage("No inventory named '" + event.getMessage() + "'!");

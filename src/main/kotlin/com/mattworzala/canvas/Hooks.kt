@@ -20,7 +20,7 @@ fun RenderContext<*>.useCleanup(cleanup: Effect) {
 //todo this would be better if it didn't use two (3 including cleanup) state values ideally.
 fun RenderContext<*>.useEffect(vararg deps: Any, handler: () -> Effect?) {
     var cleanup by state.UNSAFE_get<Effect?>(null)
-    var oldDeps by state.UNSAFE_get(deps)
+    var oldDeps by state.UNSAFE_get<Array<out Any>?>(null)
 
     // Valid because it will get the most recent value on cleanup execution.
     useCleanup { cleanup?.invoke() }
