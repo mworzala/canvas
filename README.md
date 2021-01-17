@@ -20,6 +20,6 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.mworzala:adventure-platform-minestom:VERSION'
+    implementation 'com.github.mworzala:canvas:VERSION'
 }
 ```
