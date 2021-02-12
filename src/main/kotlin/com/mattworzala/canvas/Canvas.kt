@@ -14,7 +14,6 @@ import net.minestom.server.inventory.click.ClickType
 
 private const val CHEST_INVENTORY_WIDTH = 9
 
-//todo need to set Inventory before opening player inventory so close event is not handled
 class Canvas internal constructor(private val player: Player) : SlotHolder {
 
     /**
@@ -22,7 +21,7 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
      *
      * Empty slots may be represented by null, or a [Slot] with an air item.
      */
-    private var items: Array<Slot?> = arrayOf()
+    private var items: Array<Slot?> = Array(9) { null }
     private var root: RenderContext<*>? = null
 
     /**
