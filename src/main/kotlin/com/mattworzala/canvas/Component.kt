@@ -1,22 +1,54 @@
 package com.mattworzala.canvas
 
-interface Component<P : Props> {
-    val width: Int
-    val height: Int
-    val handler: RenderContext<P>.() -> Unit
-    val flags: Int
+import com.mattworzala.canvas.CanvasProvider.canvas
+import net.minestom.server.entity.Player
 
+/**
+ * A component is a part of a UI that can do things.
+ *
+ * Similar to components in modern web frameworks.
+ */
+interface Component<P : Props> {
+
+    /** The width of the component. */
+    val width: Int
+    /** The height of the component*/
+    val height: Int
+    /** Kotlin DSL to define behavior of the component */
+    val handler: RenderContext<P>.() -> Unit
+    /** The flags of a component. Defined in [RenderContext] */
+    val flags: Int
+    /** Invokes the [handler] DSL */
     operator fun invoke(context: RenderContext<P>) = handler(context)
+
+    fun render(player: Player) {
+        val canvas = canvas(player)
+        canvas.render(this)
+    }
 }
 
+/**
+ * Implementation of a Component. Can run actions against a UI.
+ */
 class FunctionComponent<P : Props>(
     override val width: Int,
     override val height: Int,
+    /** The flags as a vararg. Used for simplifying constructors. */
     vararg flags: Int = intArrayOf(),
     override val handler: RenderContext<P>.() -> Unit
 ) : Component<P> {
     override val flags: Int = if (flags.isEmpty()) 0 else flags.reduce { acc, i -> acc or i }
 }
 
+/**
+ * Kotlin DSL for constructing [FunctionComponent]s
+ *
+ * @param width The width of the component
+ * @param height The height of the component
+ * @param flags The flags of the component as a vararg for easy constructing
+ * @param handler The kotlin DSL for [FunctionComponent]. Used for defining UI behavior of that component.
+ *
+ * @return The constructed [FunctionComponent]
+ */
 fun <P : Props> component(width: Int, height: Int, vararg flags: Int = intArrayOf(), handler: RenderContext<P>.() -> Unit) =
     FunctionComponent(width, height, *flags, handler = handler)

@@ -16,6 +16,7 @@ private const val CHEST_INVENTORY_WIDTH = 9
 
 //todo need to set Inventory before opening player inventory so close event is not handled
 class Canvas internal constructor(private val player: Player) : SlotHolder {
+
     /**
      * Represents the underlying slots in the inventory. Will match the size of the current value of [inventory].
      *
@@ -24,8 +25,15 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
     private var items: Array<Slot?> = arrayOf()
     private var root: RenderContext<*>? = null
 
+    /**
+     * Internal inventory. Externally only used for event checking.
+     */
     var inventory: Inventory = Inventory(InventoryType.CHEST_1_ROW, "Unnamed Canvas")
         private set
+
+    /**
+     * All slots that need to be rerendered and changed.
+     */
     private val dirtySlots: IntPriorityQueue = IntArrayFIFOQueue()
 
     var isViewing: Boolean = false
@@ -34,8 +42,16 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
         private set
 
     /* Rendering */
+
+    /**
+     * Renders a [Component] to a player.
+     *
+     * @param component The [Component] to render.
+     * @param props The properties to pass
+     */
     @Synchronized
-    fun <P : Props> render(component: Component<P>, props: P) {
+    @JvmOverloads
+    fun <P : Props> render(component: Component<P>, props: P? = null) {
         // Prep
         val type = getInventoryType(component)
         prepareInventory(type)
@@ -56,16 +72,32 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
 
     /* Slot Holder */
 
+    /** The width of the inventory */
     override val width: Int = CHEST_INVENTORY_WIDTH
+
+    /** The height of the inventory */
     override val height: Int
         get() = inventory.size / CHEST_INVENTORY_WIDTH
 
+    /**
+     * Gets a [Slot] at an inventory [index]
+     *
+     * @param index The index of the [Slot] you want to get
+     *
+     * @return The [Slot] at that respective [index]
+     */
     override fun get(index: Int): Slot {
         dirtySlots.enqueue(index)
         if (items[index] == null) items[index] = Slot()
         return items[index]!!
     }
 
+    /**
+     * Sets a [Slot] at an [index]
+     *
+     * @param index Where to set the slot.
+     * @param slot The slot to set at that position.
+     */
     override fun set(index: Int, slot: Slot) {
         dirtySlots.enqueue(index)
         items[index] = slot
