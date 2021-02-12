@@ -10,7 +10,12 @@ import net.minestom.server.utils.time.TimeUnit
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
+/**
+ * An object for providing all canvas instances.
+ * Stores an internal ConcurrentHashMap for thread safety.
+ */
 object CanvasProvider {
+    /** Internal map of all canvases. */
     private val canvases: MutableMap<UUID, Canvas> = ConcurrentHashMap()
 
     internal var useFixedUpdate: Boolean = false

@@ -16,6 +16,7 @@ private const val CHEST_INVENTORY_WIDTH = 9
 
 //todo need to set Inventory before opening player inventory so close event is not handled
 class Canvas internal constructor(private val player: Player) : SlotHolder {
+
     /**
      * Represents the underlying slots in the inventory. Will match the size of the current value of [inventory].
      *
@@ -24,8 +25,15 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
     private var items: Array<Slot?> = arrayOf()
     private var root: RenderContext<*>? = null
 
+    /**
+     * Internal inventory. Externally only used for event checking.
+     */
     var inventory: Inventory = Inventory(InventoryType.CHEST_1_ROW, "Unnamed Canvas")
         private set
+
+    /**
+     * All slots that need to be rerendered and changed.
+     */
     private val dirtySlots: IntPriorityQueue = IntArrayFIFOQueue()
 
     var isViewing: Boolean = false
@@ -34,8 +42,16 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
         private set
 
     /* Rendering */
+
+    /**
+     * Renders a [Component] to a player.
+     *
+     * @param component The [Component] to render.
+     * @param props The properties to pass
+     */
     @Synchronized
-    fun <P : Props> render(component: Component<P>, props: P) {
+    @JvmOverloads
+    fun <P : Props> render(component: Component<P>, props: P? = null) {
         // Prep
         val type = getInventoryType(component)
         prepareInventory(type)
@@ -56,16 +72,32 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
 
     /* Slot Holder */
 
+    /** The width of the inventory */
     override val width: Int = CHEST_INVENTORY_WIDTH
+
+    /** The height of the inventory */
     override val height: Int
         get() = inventory.size / CHEST_INVENTORY_WIDTH
 
+    /**
+     * Gets a [Slot] at an inventory [index]
+     *
+     * @param index The index of the [Slot] you want to get
+     *
+     * @return The [Slot] at that respective [index]
+     */
     override fun get(index: Int): Slot {
         dirtySlots.enqueue(index)
         if (items[index] == null) items[index] = Slot()
         return items[index]!!
     }
 
+    /**
+     * Sets a [Slot] at an [index]
+     *
+     * @param index Where to set the slot.
+     * @param slot The slot to set at that position.
+     */
     override fun set(index: Int, slot: Slot) {
         dirtySlots.enqueue(index)
         items[index] = slot
@@ -141,28 +173,29 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
     }
 
     /**
-     * Prepares the [inventory] to render a new component of the given [size].
-     * If the inventory is already the correct size, it will reuse it. Otherwise,
+     * Prepares the [inventory] to render a new component of the given [type].
+     * If the inventory is already the correct type, it will reuse it. Otherwise,
      * a new inventory will be created.
      *
-     * @param size The size of the inventory required for the component
+     * @param type The type of the inventory required for the component
      */
-    private fun prepareInventory(size: InventoryType) {
+    private fun prepareInventory(type: InventoryType) {
         dirtySlots.clear()
-        if (inventory.inventoryType == size) {
+        if (inventory.inventoryType == type) {
             // Reset data, reuse inventory
             items.fill(null)
             // Mark all slots dirty so they will be re sent during update
             (1 until items.size).forEach(dirtySlots::enqueue)
         } else {
             // New inventory
-            inventory = Inventory(size, "Unnamed Canvas")
-            items = arrayOfNulls(size.additionalSlot)
+            inventory = Inventory(type, "Unnamed Canvas")
+            items = arrayOfNulls(type.additionalSlot)
         }
     }
 
     /**
-     * Handles closing the inventory assuming it is currently open for the player.
+     * Handles closing the inventory
+     * assuming it is currently open for the player.
      */
     private fun handleClose() {
         player.closeInventory()
