@@ -5,6 +5,15 @@ import com.mattworzala.canvas.asSlot
 import net.minestom.server.item.ItemStack
 import net.minestom.server.utils.validate.Check
 
+/**
+ * A visual representation of a UI.
+ * Masks can either be binary masks or char masks.
+ *
+ * Binary masks: where 0 is X item, and 1 is Y item.
+ *
+ * Char masks: where any character can be any item,
+ * inspired by the Minecraft recipe format.
+ */
 class Mask {
     private var binaryFill: ItemStack? = null
     private var multiFill: MutableMap<Char, ItemStack>? = null;
@@ -40,6 +49,11 @@ class Mask {
     }
 }
 
+/**
+ * Kotlin DSL for masking.
+ *
+ * @param handler The kotlin DSL handler.
+ */
 fun RenderContext<*>.mask(handler: Mask.() -> Unit) {
     val mask = Mask()
     mask.handler()

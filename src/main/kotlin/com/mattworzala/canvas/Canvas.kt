@@ -141,28 +141,29 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
     }
 
     /**
-     * Prepares the [inventory] to render a new component of the given [size].
-     * If the inventory is already the correct size, it will reuse it. Otherwise,
+     * Prepares the [inventory] to render a new component of the given [type].
+     * If the inventory is already the correct type, it will reuse it. Otherwise,
      * a new inventory will be created.
      *
-     * @param size The size of the inventory required for the component
+     * @param type The type of the inventory required for the component
      */
-    private fun prepareInventory(size: InventoryType) {
+    private fun prepareInventory(type: InventoryType) {
         dirtySlots.clear()
-        if (inventory.inventoryType == size) {
+        if (inventory.inventoryType == type) {
             // Reset data, reuse inventory
             items.fill(null)
             // Mark all slots dirty so they will be re sent during update
             (1 until items.size).forEach(dirtySlots::enqueue)
         } else {
             // New inventory
-            inventory = Inventory(size, "Unnamed Canvas")
-            items = arrayOfNulls(size.additionalSlot)
+            inventory = Inventory(type, "Unnamed Canvas")
+            items = arrayOfNulls(type.additionalSlot)
         }
     }
 
     /**
-     * Handles closing the inventory assuming it is currently open for the player.
+     * Handles closing the inventory
+     * assuming it is currently open for the player.
      */
     private fun handleClose() {
         player.closeInventory()
