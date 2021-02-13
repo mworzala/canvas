@@ -11,7 +11,7 @@ repositories {
     maven(url = "https://jitpack.io")
     maven(url = "https://jcenter.bintray.com/")
 
-    maven(url = "http://repo.spongepowered.org/maven")
+    maven(url = "https://repo.spongepowered.org/maven")
     maven(url = "https://libraries.minecraft.net")
 }
 
