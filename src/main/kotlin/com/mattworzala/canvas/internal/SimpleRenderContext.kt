@@ -6,6 +6,10 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import java.util.*
 
+/**
+ * A basic implementation of a [RenderContext]. Implementation details may vary, so this class should
+ * not be used as a reference.
+ */
 class SimpleRenderContext<P : Props>(
     private val parent: SlotHolder,
     private val offset: Int,

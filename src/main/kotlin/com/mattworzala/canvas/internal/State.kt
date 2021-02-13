@@ -3,6 +3,7 @@ package com.mattworzala.canvas.internal
 import com.mattworzala.canvas.FORCE_STATE_UPDATE
 import com.mattworzala.canvas.RenderContext
 import com.mattworzala.canvas.ext.has
+import com.mattworzala.canvas.useState
 import it.unimi.dsi.fastutil.ints.IntArrayList
 import org.jetbrains.annotations.Contract
 import kotlin.reflect.KProperty
@@ -14,6 +15,10 @@ private const val ERR_STATE_REMOVAL = "State was removed in a non-deterministic 
 private const val ERR_RENDER_DEPTH = "Maximum render depth reached. This likely indicates a render loop in one of your components."
 private const val ERR_INVALID_UPDATE = "A state update was made to a component which is not rendered. This indicates that an effect was not cleaned up properly."
 
+/**
+ * An internal state management tool. This should not be used externally, see the provided
+ * [useState] hook for state management.
+ */
 class StateDispenser(
     private val context: RenderContext<*>,
     private val handleError: () -> Unit

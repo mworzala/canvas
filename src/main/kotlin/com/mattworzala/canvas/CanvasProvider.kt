@@ -19,7 +19,7 @@ object CanvasProvider {
     private val canvases: MutableMap<UUID, Canvas> = ConcurrentHashMap()
 
     internal var useFixedUpdate: Boolean = false
-        private set
+        private set //todo not implemented
 
     @JvmStatic
     fun canvas(player: Player): Canvas = canvases[player.uuid] ?: createCanvas(player)

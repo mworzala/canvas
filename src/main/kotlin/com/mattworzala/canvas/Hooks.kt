@@ -5,6 +5,9 @@ import net.minestom.server.utils.time.TimeUnit
 
 typealias Effect = () -> Unit
 
+/**
+ *
+ */
 fun <T> RenderContext<*>.useState(default: T) = state.get(default)
 
 //todo ideally should not use any state values. cleanup effects need a rework.

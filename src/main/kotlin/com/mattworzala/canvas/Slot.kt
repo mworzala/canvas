@@ -3,13 +3,14 @@ package com.mattworzala.canvas
 import net.minestom.server.event.inventory.InventoryPreClickEvent
 import net.minestom.server.item.ItemStack
 import net.minestom.server.item.Material
+import com.mattworzala.canvas.extra.*
 
 typealias ItemFunc = ItemStack.() -> Unit
 typealias SlotFunc = Slot.() -> Unit
 typealias ClickHandler = Slot.(InventoryPreClickEvent) -> Unit
 
 /**
- * A slot, which contains clickers + the item inside.
+ * A slot, which contains click handlers + the item inside.
  */
 class Slot internal constructor(
     /**
@@ -51,6 +52,9 @@ class Slot internal constructor(
     }
 }
 
+/**
+ * Represents a container which has slots and manipulation of those slots.
+ */
 interface SlotHolder {
     val width: Int
     val height: Int
@@ -75,6 +79,14 @@ interface SlotHolder {
      */
     fun set(index: Int, slot: Slot)
 
+    /**
+     * Used to apply the same slot to a group of slots in the inventory.
+     *
+     * To perform actions on rows/columns, see [RenderContext.col] and [RenderContext.row].
+     *
+     * @param slots The indices to apply the slot function
+     * @param handler The DSL to apply
+     */
     fun apply(slots: List<Int>, handler: SlotFunc): List<Int> {
         slots.map(::get).forEach(handler)
         return slots
