@@ -8,18 +8,18 @@ import net.minestom.server.entity.Player
  *
  * Similar to components in modern web frameworks.
  */
-interface Component<P : Props> {
+interface Component {
 
     /** The width of the component. */
     val width: Int
     /** The height of the component*/
     val height: Int
     /** Kotlin DSL to define behavior of the component */
-    val handler: RenderContext<P>.() -> Unit
+    val handler: RenderContext.() -> Unit
     /** The flags of a component. Defined in [RenderContext] */
     val flags: Int
     /** Invokes the [handler] DSL */
-    operator fun invoke(context: RenderContext<P>) = handler(context)
+    operator fun invoke(context: RenderContext) = handler(context)
 
     fun render(player: Player) {
         val canvas = canvas(player)
@@ -30,13 +30,13 @@ interface Component<P : Props> {
 /**
  * Implementation of a Component. Can run actions against a UI.
  */
-class FunctionComponent<P : Props>(
+class FunctionComponent(
     override val width: Int,
     override val height: Int,
     /** The flags as a vararg. Used for simplifying constructors. */
     vararg flags: Int = intArrayOf(),
-    override val handler: RenderContext<P>.() -> Unit
-) : Component<P> {
+    override val handler: RenderContext.() -> Unit
+) : Component {
     override val flags: Int = if (flags.isEmpty()) 0 else flags.reduce { acc, i -> acc or i }
 }
 
@@ -50,5 +50,5 @@ class FunctionComponent<P : Props>(
  *
  * @return The constructed [FunctionComponent]
  */
-fun <P : Props> component(width: Int, height: Int, vararg flags: Int = intArrayOf(), handler: RenderContext<P>.() -> Unit) =
+fun component(width: Int, height: Int, vararg flags: Int = intArrayOf(), handler: RenderContext.() -> Unit) =
     FunctionComponent(width, height, *flags, handler = handler)

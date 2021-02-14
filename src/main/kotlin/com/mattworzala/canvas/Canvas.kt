@@ -22,7 +22,7 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
      * Empty slots may be represented by null, or a [Slot] with an air item.
      */
     private var items: Array<Slot?> = Array(9) { null }
-    private var root: RenderContext<*>? = null
+    private var root: RenderContext? = null
 
     /**
      * Internal inventory. Externally only used for event checking.
@@ -50,7 +50,7 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
      */
     @Synchronized
     @JvmOverloads
-    fun <P : Props> render(component: Component<P>, props: P? = null) {
+    fun render(component: Component, props: Props? = null) {
         // Prep
         val type = getInventoryType(component)
         prepareInventory(type)
@@ -157,7 +157,7 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
      * @return The inventory type (size) required for the given component
      * @throws IllegalStateException If the component is not a valid root
      */
-    private fun getInventoryType(component: Component<*>): InventoryType {
+    private fun getInventoryType(component: Component): InventoryType {
         if (component.width != 9)
             throw IllegalStateException("Canvases cannot directly render components with a width other than $CHEST_INVENTORY_WIDTH.")
         return when (component.height) {

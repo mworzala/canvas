@@ -46,10 +46,10 @@ public class MainDemo {
 
             switch (event.getMessage().toLowerCase()) {
                 case "basic":
-                    canvas.render(BasicTest.BasicItems, BlankProps.INSTANCE);
+                    canvas.render(BasicTest.BasicItems, new MutableProps(event.getPlayer()));
                     break;
                 case "flash":
-                    canvas.render(FlashingTest.FlashingInv, BlankProps.INSTANCE);
+                    canvas.render(FlashingTest.FlashingInv, new MutableProps(event.getPlayer()));
                     break;
                 default:
                     event.getPlayer().sendMessage("No inventory named '" + event.getMessage() + "'!");

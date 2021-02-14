@@ -20,7 +20,7 @@ private const val ERR_INVALID_UPDATE = "A state update was made to a component w
  * [useState] hook for state management.
  */
 class StateDispenser(
-    private val context: RenderContext<*>,
+    private val context: RenderContext,
     private val handleError: () -> Unit
 ) {
     //todo ensure this doesn't need to be thread safe
@@ -62,7 +62,7 @@ class StateDispenser(
     }
 }
 
-class StateDelegate<T> internal constructor(private val context: RenderContext<*>, default: T, private val unsafe: Boolean) {
+class StateDelegate<T> internal constructor(private val context: RenderContext, default: T, private val unsafe: Boolean) {
     private var value: T = default
 
     operator fun getValue(nothing: Any?, property: KProperty<*>): T = value

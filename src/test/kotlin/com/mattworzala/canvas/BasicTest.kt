@@ -4,6 +4,7 @@ package com.mattworzala.canvas
 
 import com.mattworzala.canvas.extra.col
 import com.mattworzala.canvas.extra.row
+import net.minestom.server.MinecraftServer
 import net.minestom.server.chat.ChatColor
 import net.minestom.server.chat.ColoredText
 import net.minestom.server.item.ItemStack
@@ -13,13 +14,13 @@ import kotlin.math.min
 
 /* "Exported" Components */
 
-fun RenderContext<*>.singleItem(index: Int, propHandler: ItemProps.() -> Unit = {}) =
-    child(index, SingleItemFromProps, ItemProps(), propHandler)
+fun RenderContext.singleItem(index: Int, propHandler: MutableProps.() -> Unit = {}) =
+    child(index, SingleItemFromProps, mutablePropsOf(), propHandler)
 
-fun RenderContext<*>.counter(index: Int) = child(index, BasicCounter, BlankProps, {})
+fun RenderContext.counter(index: Int) = child(index, BasicCounter, mutablePropsOf(), {})
 
 @JvmField
-val BasicItems = FunctionComponent<Props>(9, 5) {
+val BasicItems = FunctionComponent(9, 5) {
     get(0).item {
         material = Material.GOLD_INGOT
     }
@@ -30,11 +31,11 @@ val BasicItems = FunctionComponent<Props>(9, 5) {
     counter(3)
 
     singleItem(1) {
-        item = ItemStack(Material.IRON_SHOVEL, 5)
+        this["item"] = ItemStack(Material.IRON_SHOVEL, 5)
     }
 
     singleItem(25) {
-        item = ItemStack(Material.IRON_HELMET, 5)
+        this["item"] = ItemStack(Material.IRON_HELMET, 5)
     }
 
     row(4) {
@@ -46,18 +47,17 @@ val BasicItems = FunctionComponent<Props>(9, 5) {
     }
 }
 
-class ItemProps(var item: ItemStack = ItemStack(Material.GOLD_INGOT, 1)) : Props()
 @JvmField
-val SingleItemFromProps = FunctionComponent<ItemProps>(1, 1) {
+val SingleItemFromProps = FunctionComponent(1, 1) {
     val slot = get(0)
-    slot.item = props.item
+    slot.item = props["item"]
     slot.onClick = {
         println("SingleItem was clicked!!!")
     }
 }
 
 @JvmField
-val BasicCounter = FunctionComponent<Props>(3, 1) {
+val BasicCounter = FunctionComponent(3, 1) {
     var counter by useState(1)
 
     // Decrement

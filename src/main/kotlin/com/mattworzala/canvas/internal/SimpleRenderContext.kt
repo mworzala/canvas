@@ -1,7 +1,6 @@
 package com.mattworzala.canvas.internal
 
 import com.mattworzala.canvas.*
-import com.mattworzala.canvas.ext.has
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import java.util.*
@@ -10,12 +9,12 @@ import java.util.*
  * A basic implementation of a [RenderContext]. Implementation details may vary, so this class should
  * not be used as a reference.
  */
-class SimpleRenderContext<P : Props>(
+class SimpleRenderContext(
     private val parent: SlotHolder,
     private val offset: Int,
-    private val component: Component<P>
-) : RenderContext<P> {
-    private val children: Int2ObjectMap<RenderContext<*>> = Int2ObjectOpenHashMap()
+    private val component: Component
+) : RenderContext {
+    private val children: Int2ObjectMap<RenderContext> = Int2ObjectOpenHashMap()
     private val cleanupEffects: MutableList<Effect> = mutableListOf()
 
     override val state = StateDispenser(this) { println("An error has occurred, need to cleanup here.") }
@@ -24,15 +23,15 @@ class SimpleRenderContext<P : Props>(
 
     /* Rendering */
 
-    private var _props: P? = null
-    override val props: P get() = _props!!
+    private var _props: MutableProps? = null
+    override val props: Props get() = _props!!
 
-    override fun <P : Props> child(index: Int, component: Component<P>, props: P, propHandler: P.() -> Unit) {
+    override fun child(index: Int, component: Component, props: MutableProps, propHandler: MutableProps.() -> Unit) {
         val childId = Objects.hash(index, component)
 
         @Suppress("UNCHECKED_CAST")
-        val child: RenderContext<P> =
-            children.computeIfAbsent(childId) { SimpleRenderContext(this, index, component) } as RenderContext<P>
+        val child: RenderContext =
+            children.computeIfAbsent(childId) { SimpleRenderContext(this, index, component) } as RenderContext
         props.propHandler()
         child.render(props)
     }
@@ -40,10 +39,13 @@ class SimpleRenderContext<P : Props>(
     /* Lifecycle */
 
     @Synchronized
-    override fun render(props: P?) {
+    override fun render(props: Props?) {
         rendered = true
-        if (props != null)
+        if (props != null) {
+            if (props !is MutableProps)
+                throw IllegalArgumentException("Only mutable props are supported at this time!")
             _props = props
+        }
 
         // Reset covered slots if flagged
 //        if (flags has CLEAR_ON_RENDER) apply((0 until size).toList(), Slot::reset)
@@ -60,7 +62,7 @@ class SimpleRenderContext<P : Props>(
 
     @Synchronized
     override fun cleanup() {
-        children.values.forEach(RenderContext<*>::cleanup)
+        children.values.forEach(RenderContext::cleanup)
 
         cleanupEffects.forEach(Effect::invoke)
         rendered = false

@@ -24,23 +24,23 @@ const val FORCE_STATE_UPDATE: Int = 0x2
  *
  * See [SlotHolder] for slot manipulation methods.
  */
-interface RenderContext<P : Props> : SlotHolder {
+interface RenderContext : SlotHolder {
     val state: StateDispenser
     val rendered: Boolean
     val flags: Int
 
     /* Rendering */
 
-    val props: P
+    val props: Props
 
-    fun <P : Props> child(x: Int, y: Int, component: Component<P>, props: P, propHandler: P.() -> Unit) =
+    fun child(x: Int, y: Int, component: Component, props: MutableProps = mutablePropsOf(), propHandler: Props.() -> Unit = {}) =
         child(getIndex(x, y), component, props, propHandler)
 
-    fun <P : Props> child(index: Int, component: Component<P>, props: P, propHandler: P.() -> Unit)
+    fun child(index: Int, component: Component, props: MutableProps = mutablePropsOf(), propHandler: MutableProps.() -> Unit = {})
 
     /* Lifecycle */
 
-    fun render(props: P? = null)
+    fun render(props: Props? = null)
 
     fun update()
 

@@ -8,10 +8,10 @@ typealias Effect = () -> Unit
 /**
  *
  */
-fun <T> RenderContext<*>.useState(default: T) = state.get(default)
+fun <T> RenderContext.useState(default: T) = state.get(default)
 
 //todo ideally should not use any state values. cleanup effects need a rework.
-fun RenderContext<*>.useCleanup(cleanup: Effect) {
+fun RenderContext.useCleanup(cleanup: Effect) {
     var set by state.UNSAFE_get(false)
 
     if (set) return
@@ -21,7 +21,7 @@ fun RenderContext<*>.useCleanup(cleanup: Effect) {
 }
 
 //todo this would be better if it didn't use two (3 including cleanup) state values ideally.
-fun RenderContext<*>.useEffect(vararg deps: Any, handler: () -> Effect?) {
+fun RenderContext.useEffect(vararg deps: Any, handler: () -> Effect?) {
     var cleanup by state.UNSAFE_get<Effect?>(null)
     var oldDeps by state.UNSAFE_get<Array<out Any>?>(null)
 
@@ -38,7 +38,7 @@ fun RenderContext<*>.useEffect(vararg deps: Any, handler: () -> Effect?) {
     cleanup = handler()
 }
 
-fun RenderContext<*>.useUpdate(interval: Long, unit: TimeUnit, func: Effect) = useEffect {
+fun RenderContext.useUpdate(interval: Long, unit: TimeUnit, func: Effect) = useEffect {
     val task = MinecraftServer.getSchedulerManager().buildTask(func)
         .delay(interval, unit).repeat(interval, unit).schedule()
     return@useEffect task::cancel

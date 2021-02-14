@@ -34,7 +34,7 @@ class Mask {
 
     infix fun Char.with(item: ItemStack): Pair<Char, ItemStack> = this to item
 
-    internal fun apply(component: RenderContext<*>) {
+    internal fun apply(component: RenderContext) {
         Check.argCondition(component.size != pattern?.length, "Component and pattern must be the same size!")
 
         for (i in 0 until component.size) {
@@ -54,7 +54,7 @@ class Mask {
  *
  * @param handler The kotlin DSL handler.
  */
-fun RenderContext<*>.mask(handler: Mask.() -> Unit) {
+fun RenderContext.mask(handler: Mask.() -> Unit) {
     val mask = Mask()
     mask.handler()
     mask.apply(this)
