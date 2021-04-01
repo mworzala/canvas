@@ -22,10 +22,10 @@ dependencies {
     compileOnly(kotlin("reflect"))
 
     // Minestom
-    compileOnly("com.github.Minestom:Minestom:fc694f4b49")
+    compileOnly("com.github.Minestom:Minestom:9a8b6e2a11")
 
     testImplementation(kotlin("reflect"))
-    testImplementation("com.github.Minestom:Minestom:fc694f4b49")
+    testImplementation("com.github.Minestom:Minestom:9a8b6e2a11")
 }
 
 configure<JavaPluginExtension> {

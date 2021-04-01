@@ -16,7 +16,7 @@ import net.minestom.server.utils.validate.Check
  */
 class Mask {
     private var binaryFill: ItemStack? = null
-    private var multiFill: MutableMap<Char, ItemStack>? = null;
+    private var multiFill: MutableMap<Char, ItemStack>? = null
 
     var pattern: String? = null
         set(value) { field = value?.filter { it != '\n' } }
