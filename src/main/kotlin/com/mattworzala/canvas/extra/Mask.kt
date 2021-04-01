@@ -35,7 +35,7 @@ class Mask {
     infix fun Char.with(item: ItemStack): Pair<Char, ItemStack> = this to item
 
     internal fun apply(component: RenderContext) {
-        Check.argCondition(component.size != pattern?.length, "Component and pattern must be the same size!")
+        Check.argCondition(component.size != pattern?.length, "Fragment and pattern must be the same size!")
 
         for (i in 0 until component.size) {
             val char = pattern!![i]

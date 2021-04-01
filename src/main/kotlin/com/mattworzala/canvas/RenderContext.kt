@@ -20,7 +20,7 @@ const val CLEAR_ON_RENDER: Int = 0x1
 const val FORCE_STATE_UPDATE: Int = 0x2
 
 /**
- * The class used as the base for a component hierarchy and the component DSL.
+ * The class used as the base for a fragment hierarchy and the fragment DSL.
  *
  * See [SlotHolder] for slot manipulation methods.
  */
@@ -33,10 +33,10 @@ interface RenderContext : SlotHolder {
 
     val props: Props
 
-    fun child(x: Int, y: Int, component: Component, props: MutableProps = mutablePropsOf(), propHandler: Props.() -> Unit = {}) =
-        child(getIndex(x, y), component, props, propHandler)
+    fun child(x: Int, y: Int, fragment: Fragment, props: MutableProps = mutablePropsOf(), propHandler: Props.() -> Unit = {}) =
+        child(getIndex(x, y), fragment, props, propHandler)
 
-    fun child(index: Int, component: Component, props: MutableProps = mutablePropsOf(), propHandler: MutableProps.() -> Unit = {})
+    fun child(index: Int, fragment: Fragment, props: MutableProps = mutablePropsOf(), propHandler: MutableProps.() -> Unit = {})
 
     /* Lifecycle */
 

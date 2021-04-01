@@ -4,9 +4,8 @@ package com.mattworzala.canvas
 
 import com.mattworzala.canvas.extra.col
 import com.mattworzala.canvas.extra.row
-import net.minestom.server.MinecraftServer
-import net.minestom.server.chat.ChatColor
-import net.minestom.server.chat.ColoredText
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import net.minestom.server.item.ItemStack
 import net.minestom.server.item.Material
 import kotlin.math.max
@@ -20,7 +19,7 @@ fun RenderContext.singleItem(index: Int, propHandler: MutableProps.() -> Unit = 
 fun RenderContext.counter(index: Int) = child(index, BasicCounter, mutablePropsOf(), {})
 
 @JvmField
-val BasicItems = FunctionComponent(9, 5) {
+val BasicItems = FunctionFragment(9, 5) {
     get(0).item {
         material = Material.GOLD_INGOT
     }
@@ -48,7 +47,7 @@ val BasicItems = FunctionComponent(9, 5) {
 }
 
 @JvmField
-val SingleItemFromProps = FunctionComponent(1, 1) {
+val SingleItemFromProps = FunctionFragment(1, 1) {
     val slot = get(0)
     slot.item = props["item"]
     slot.onClick = {
@@ -57,7 +56,7 @@ val SingleItemFromProps = FunctionComponent(1, 1) {
 }
 
 @JvmField
-val BasicCounter = FunctionComponent(3, 1) {
+val BasicCounter = FunctionFragment(3, 1) {
     var counter by useState(1)
 
     // Decrement
@@ -65,7 +64,7 @@ val BasicCounter = FunctionComponent(3, 1) {
         onClick { counter = max(1, counter - 1) }
         item {
             material = Material.RED_CONCRETE
-            displayName = ColoredText.of(ChatColor.RED, "Decrement")
+            displayName = Component.text("Decrement", NamedTextColor.RED)
         }
     }
 
@@ -82,7 +81,7 @@ val BasicCounter = FunctionComponent(3, 1) {
         }
         item {
             material = Material.GREEN_CONCRETE
-            displayName = ColoredText.of(ChatColor.BRIGHT_GREEN, "Increment")
+            displayName = Component.text("Increment", NamedTextColor.GREEN)
         }
     }
 }
