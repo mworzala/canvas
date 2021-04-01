@@ -51,7 +51,7 @@ val BasicItems = fragment(9, 5) {
 @JvmField
 val SingleItemFromProps = fragment(1, 1) {
     val slot = get(0)
-    slot.item = data["item"]
+    slot.item = data["item"]!!
     slot.onClick = {
         println("SingleItem was clicked!!!")
     }

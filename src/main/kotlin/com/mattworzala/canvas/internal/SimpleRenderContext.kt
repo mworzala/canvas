@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.minestom.server.data.Data
 import java.util.*
+import java.util.function.IntFunction
 
 /**
  * A basic implementation of a [RenderContext]. Implementation details may vary, so this class should
@@ -33,8 +34,11 @@ class SimpleRenderContext(
 
         @Suppress("UNCHECKED_CAST")
         val child: RenderContext =
-            children.computeIfAbsent(childId) { SimpleRenderContext(this, index, fragment) } as RenderContext
-        this.data.propHandler()
+            children.computeIfAbsent(childId, IntFunction {
+                SimpleRenderContext(this, index, fragment)
+            }) as RenderContext
+
+        this.data.dataHandler()
         child.render(this.data)
     }
 
