@@ -5,7 +5,7 @@ import com.mattworzala.canvas.RenderContext
 import com.mattworzala.canvas.useState
 import net.minestom.server.data.Data
 
-fun <P : Data> memo(fragment: Fragment): Fragment = MemoFragment(fragment)
+fun memo(fragment: Fragment): Fragment = MemoFragment(fragment)
 
 /**
  * A memoized fragment, useful if a fragment is expensive to re render.

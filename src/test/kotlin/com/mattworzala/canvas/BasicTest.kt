@@ -13,10 +13,11 @@ import kotlin.math.min
 
 @JvmField
 val BasicItems = fragment(9, 5) {
-    get(0).item {
+    this[0].item {
         material = Material.GOLD_INGOT
     }
-    get(10).item {
+
+    this[10].item {
         material = Material.GOLD_INGOT
     }
 
