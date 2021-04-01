@@ -42,10 +42,11 @@ val BasicItems = fragment(9, 5) {
 
 @JvmField
 val SingleItemFromProps = fragment(1, 1) {
-    val slot = get(0)
-    slot.item = data["item"]!!
-    slot.onClick = {
-        println("SingleItem was clicked!!!")
+    this[0].apply {
+        item = data["item"]!!
+        onClick {
+            println("SingleItem was clicked!!!")
+        }
     }
 }
 
@@ -54,7 +55,7 @@ val BasicCounter = fragment(3, 1) {
     var counter by useState(1)
 
     // Decrement
-    slot(0) {
+    this[0].apply {
         onClick { counter = max(1, counter - 1) }
         item {
             material = Material.RED_CONCRETE
@@ -63,13 +64,13 @@ val BasicCounter = fragment(3, 1) {
     }
 
     // Counter
-    item(1) {
+    this[1].item {
         material = Material.GLOWSTONE_DUST
         amount = counter.toByte()
     }
 
     // Increment
-    slot(2) {
+    this[0].apply {
         onClick {
             counter = min(64, counter + 1)
         }
