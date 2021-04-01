@@ -56,5 +56,5 @@ class FunctionFragment(
  *
  * @return The constructed [FunctionFragment]
  */
-fun fragment(width: Int, height: Int, vararg flags: Int = intArrayOf(), handler: RenderContext.() -> Unit) =
+fun fragment(width: Int = 1, height: Int = 1, vararg flags: Int = intArrayOf(), handler: RenderContext.() -> Unit) =
     FunctionFragment(width, height, *flags, handler = handler)

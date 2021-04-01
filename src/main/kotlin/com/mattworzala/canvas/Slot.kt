@@ -23,7 +23,8 @@ class Slot internal constructor(
      * The clicker in the slot.
      * Will trigger when someone clicks on the slot.
      */
-    private var onClick: ClickHandler? = null
+    var onClick: ClickHandler? = null
+        private set
 
     /**
      * Kotlin DSL for defining item properties

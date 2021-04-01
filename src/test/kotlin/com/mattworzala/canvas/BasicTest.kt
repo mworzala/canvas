@@ -41,7 +41,7 @@ val BasicItems = fragment(9, 5) {
 }
 
 @JvmField
-val SingleItemFromProps = fragment(1, 1) {
+val SingleItemFromProps = fragment {
     this[0].apply {
         item = data["item"]!!
         onClick {
@@ -51,7 +51,7 @@ val SingleItemFromProps = fragment(1, 1) {
 }
 
 @JvmField
-val BasicCounter = fragment(3, 1) {
+val BasicCounter = fragment(3) {
     var counter by useState(1)
 
     // Decrement

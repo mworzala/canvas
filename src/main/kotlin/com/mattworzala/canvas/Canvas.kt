@@ -47,11 +47,11 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
      * Renders a [Fragment] to a player.
      *
      * @param fragment The [Fragment] to render.
-     * @param props The properties to pass
+     * @param data The properties to pass
      */
     @Synchronized
     @JvmOverloads
-    fun render(fragment: Fragment, props: Data? = null) {
+    fun render(fragment: Fragment, data: Data? = null) {
         // Prep
         val type = getInventoryType(fragment)
         prepareInventory(type)
@@ -59,7 +59,7 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
         // Render fragment
         val newContext = SimpleRenderContext(this, 0, fragment)
         root = newContext
-        newContext.render(props)
+        newContext.render(data)
 
         // Force an update so that the inventory is rendered when its opened.
         update()
