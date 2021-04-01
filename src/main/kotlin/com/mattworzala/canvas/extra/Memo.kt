@@ -1,8 +1,11 @@
 package com.mattworzala.canvas.extra
 
-import com.mattworzala.canvas.*
+import com.mattworzala.canvas.Fragment
+import com.mattworzala.canvas.RenderContext
+import com.mattworzala.canvas.useState
+import net.minestom.server.data.Data
 
-fun <P : OldProps> memo(fragment: Fragment): Fragment = MemoFragment(fragment)
+fun <P : Data> memo(fragment: Fragment): Fragment = MemoFragment(fragment)
 
 /**
  * A memoized fragment, useful if a fragment is expensive to re render.
@@ -18,11 +21,11 @@ private class MemoFragment(val fragment: Fragment) : Fragment {
     override val flags get() = fragment.flags
 
     override val handler: RenderContext.() -> Unit = {
-        var lastProps by useState<Props?>(null)
+        var lastData by useState<Data?>(null)
 
         // If props are not the same, set old props & re render
-        if (props != lastProps) {
-            lastProps = props
+        if (data != lastData) {
+            lastData = data
             fragment(this)
         }
     }

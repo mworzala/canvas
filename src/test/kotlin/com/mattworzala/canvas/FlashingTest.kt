@@ -10,7 +10,7 @@ import net.minestom.server.utils.time.TimeUnit
 val WHITE_STAINED_GLASS_PANE = Material.WHITE_STAINED_GLASS_PANE.id
 
 @JvmField
-val FlashingInv = component(9, 5) {
+val FlashingInv = fragment(9, 5) {
     var color: Int by useState(0)
     useUpdate(5, TimeUnit.TICK) {
         color = (color + 1) % 16

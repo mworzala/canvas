@@ -6,6 +6,8 @@ import com.mattworzala.canvas.extra.col
 import com.mattworzala.canvas.extra.row
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
+import net.minestom.server.data.Data
+import net.minestom.server.data.DataImpl
 import net.minestom.server.item.ItemStack
 import net.minestom.server.item.Material
 import kotlin.math.max
@@ -13,13 +15,13 @@ import kotlin.math.min
 
 /* "Exported" Components */
 
-fun RenderContext.singleItem(index: Int, propHandler: MutableProps.() -> Unit = {}) =
-    child(index, SingleItemFromProps, mutablePropsOf(), propHandler)
+fun RenderContext.singleItem(index: Int, propHandler: Data.() -> Unit = {}) =
+    child(index, SingleItemFromProps, DataImpl(), propHandler)
 
-fun RenderContext.counter(index: Int) = child(index, BasicCounter, mutablePropsOf(), {})
+fun RenderContext.counter(index: Int) = child(index, BasicCounter, DataImpl()) {}
 
 @JvmField
-val BasicItems = FunctionFragment(9, 5) {
+val BasicItems = fragment(9, 5) {
     get(0).item {
         material = Material.GOLD_INGOT
     }
@@ -47,16 +49,16 @@ val BasicItems = FunctionFragment(9, 5) {
 }
 
 @JvmField
-val SingleItemFromProps = FunctionFragment(1, 1) {
+val SingleItemFromProps = fragment(1, 1) {
     val slot = get(0)
-    slot.item = props["item"]
+    slot.item = data["item"]
     slot.onClick = {
         println("SingleItem was clicked!!!")
     }
 }
 
 @JvmField
-val BasicCounter = FunctionFragment(3, 1) {
+val BasicCounter = fragment(3, 1) {
     var counter by useState(1)
 
     // Decrement

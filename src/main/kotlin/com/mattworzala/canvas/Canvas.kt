@@ -5,6 +5,7 @@ package com.mattworzala.canvas
 import com.mattworzala.canvas.internal.SimpleRenderContext
 import it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue
 import it.unimi.dsi.fastutil.ints.IntPriorityQueue
+import net.minestom.server.data.Data
 import net.minestom.server.entity.Player
 import net.minestom.server.event.inventory.InventoryCloseEvent
 import net.minestom.server.event.inventory.InventoryPreClickEvent
@@ -50,7 +51,7 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
      */
     @Synchronized
     @JvmOverloads
-    fun render(fragment: Fragment, props: Props? = null) {
+    fun render(fragment: Fragment, props: Data? = null) {
         // Prep
         val type = getInventoryType(fragment)
         prepareInventory(type)

@@ -1,6 +1,8 @@
 package com.mattworzala.canvas
 
 import com.mattworzala.canvas.internal.StateDispenser
+import net.minestom.server.data.Data
+import net.minestom.server.data.DataImpl
 
 /**
  * If this flag is set, the UI will be reset before a render.
@@ -31,16 +33,16 @@ interface RenderContext : SlotHolder {
 
     /* Rendering */
 
-    val props: Props
+    val data: Data
 
-    fun child(x: Int, y: Int, fragment: Fragment, props: MutableProps = mutablePropsOf(), propHandler: Props.() -> Unit = {}) =
-        child(getIndex(x, y), fragment, props, propHandler)
+    fun child(x: Int, y: Int, fragment: Fragment, data: Data = DataImpl(), dataHandler: Data.() -> Unit = {}) =
+        child(getIndex(x, y), fragment, data, dataHandler)
 
-    fun child(index: Int, fragment: Fragment, props: MutableProps = mutablePropsOf(), propHandler: MutableProps.() -> Unit = {})
+    fun child(index: Int, fragment: Fragment, data: Data = DataImpl(), dataHandler: Data.() -> Unit = {})
 
     /* Lifecycle */
 
-    fun render(props: Props? = null)
+    fun render(data: Data? = null)
 
     fun update()
 
