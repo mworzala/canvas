@@ -6,19 +6,10 @@ import com.mattworzala.canvas.extra.col
 import com.mattworzala.canvas.extra.row
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
-import net.minestom.server.data.Data
-import net.minestom.server.data.DataImpl
 import net.minestom.server.item.ItemStack
 import net.minestom.server.item.Material
 import kotlin.math.max
 import kotlin.math.min
-
-/* "Exported" Components */
-
-fun RenderContext.singleItem(index: Int, propHandler: Data.() -> Unit = {}) =
-    child(index, SingleItemFromProps, DataImpl(), propHandler)
-
-fun RenderContext.counter(index: Int) = child(index, BasicCounter, DataImpl()) {}
 
 @JvmField
 val BasicItems = fragment(9, 5) {
@@ -29,13 +20,13 @@ val BasicItems = fragment(9, 5) {
         material = Material.GOLD_INGOT
     }
 
-    counter(3)
+    BasicCounter(this, 3)
 
-    singleItem(1) {
+    SingleItemFromProps(this, 1) {
         this["item"] = ItemStack(Material.IRON_SHOVEL, 5)
     }
 
-    singleItem(25) {
+    SingleItemFromProps(this, 25) {
         this["item"] = ItemStack(Material.IRON_HELMET, 5)
     }
 
