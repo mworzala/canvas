@@ -1,7 +1,6 @@
 package com.mattworzala.canvas
 
 import com.mattworzala.canvas.CanvasProvider.canvas
-import net.minestom.server.data.Data
 import net.minestom.server.entity.Player
 
 /**
@@ -24,8 +23,6 @@ interface Fragment {
     
     /** Invokes the [handler] DSL */
     operator fun invoke(context: RenderContext) = handler(context)
-
-    operator fun invoke(context: RenderContext, index: Int, dataHandler: Data.() -> Unit = {}) = context.child(index, this, dataHandler = dataHandler)
 
     fun render(player: Player) {
         val canvas = canvas(player)

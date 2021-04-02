@@ -46,5 +46,5 @@ val FlashingInv = fragment(9, 5) {
         fill(ItemStack(Material.fromId((WHITE_STAINED_GLASS_PANE + color).toShort()), 1))
     }
 
-    BasicCounter(this, 21)
+    put(BasicCounter, 21)
 }

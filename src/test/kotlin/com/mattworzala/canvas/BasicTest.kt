@@ -21,13 +21,13 @@ val BasicItems = fragment(9, 5) {
         material = Material.GOLD_INGOT
     }
 
-    BasicCounter(this, 3)
+    put(BasicCounter, 3)
 
-    SingleItemFromProps(this, 1) {
+    put(SingleItemFromProps, 1) {
         this["item"] = ItemStack(Material.IRON_SHOVEL, 5)
     }
 
-    SingleItemFromProps(this, 25) {
+    put(SingleItemFromProps, 25) {
         this["item"] = ItemStack(Material.IRON_HELMET, 5)
     }
 

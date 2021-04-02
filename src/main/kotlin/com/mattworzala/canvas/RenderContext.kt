@@ -49,4 +49,6 @@ interface RenderContext : SlotHolder {
     fun cleanup()
 
     fun onCleanup(handler: Effect)
+
+    fun put(fragment: Fragment, index: Int, dataHandler: Data.() -> Unit = {}) = child(index, fragment, dataHandler = dataHandler)
 }
