@@ -13,7 +13,7 @@ private const val MAX_RENDER_DEPTH = 25
 private const val ERR_RENDER_ORDER = "Rendering order incorrectly. This should not have occurred."
 private const val ERR_STATE_REMOVAL = "State was removed in a non-deterministic manner. See documentation on state usage."
 private const val ERR_RENDER_DEPTH = "Maximum render depth reached. This likely indicates a render loop in one of your components."
-private const val ERR_INVALID_UPDATE = "A state update was made to a component which is not rendered. This indicates that an effect was not cleaned up properly."
+private const val ERR_INVALID_UPDATE = "A state update was made to a fragment which is not rendered. This indicates that an effect was not cleaned up properly."
 
 /**
  * An internal state management tool. This should not be used externally, see the provided

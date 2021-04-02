@@ -3,7 +3,9 @@ package com.mattworzala.canvas.internal
 import com.mattworzala.canvas.*
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
+import net.minestom.server.data.Data
 import java.util.*
+import java.util.function.IntFunction
 
 /**
  * A basic implementation of a [RenderContext]. Implementation details may vary, so this class should
@@ -12,7 +14,7 @@ import java.util.*
 class SimpleRenderContext(
     private val parent: SlotHolder,
     private val offset: Int,
-    private val component: Component
+    private val fragment: Fragment
 ) : RenderContext {
     private val children: Int2ObjectMap<RenderContext> = Int2ObjectOpenHashMap()
     private val cleanupEffects: MutableList<Effect> = mutableListOf()
@@ -23,28 +25,30 @@ class SimpleRenderContext(
 
     /* Rendering */
 
-    private var _props: MutableProps? = null
-    override val props: Props get() = _props!!
+    private var _data: Data? = null
+    override val data: Data
+        get() = _data!!
 
-    override fun child(index: Int, component: Component, props: MutableProps, propHandler: MutableProps.() -> Unit) {
-        val childId = Objects.hash(index, component)
+    override fun child(index: Int, fragment: Fragment, data: Data, dataHandler: Data.() -> Unit) {
+        val childId = Objects.hash(index, fragment)
 
         @Suppress("UNCHECKED_CAST")
         val child: RenderContext =
-            children.computeIfAbsent(childId) { SimpleRenderContext(this, index, component) } as RenderContext
-        props.propHandler()
-        child.render(props)
+            children.computeIfAbsent(childId, IntFunction {
+                SimpleRenderContext(this, index, fragment)
+            }) as RenderContext
+
+        this.data.dataHandler()
+        child.render(this.data)
     }
 
     /* Lifecycle */
 
     @Synchronized
-    override fun render(props: Props?) {
+    override fun render(data: Data?) {
         rendered = true
-        if (props != null) {
-            if (props !is MutableProps)
-                throw IllegalArgumentException("Only mutable props are supported at this time!")
-            _props = props
+        if (data != null) {
+            _data = data
         }
 
         // Reset covered slots if flagged
@@ -52,7 +56,7 @@ class SimpleRenderContext(
 
         // Call renderer
         state.pushIndex()
-        component(this)
+        fragment(this)
         state.popIndex()
     }
 
@@ -72,9 +76,9 @@ class SimpleRenderContext(
         cleanupEffects.add(handler)
     }
 
-    override val flags: Int get() = component.flags
-    override val width: Int get() = component.width
-    override val height: Int get() = component.height
+    override val flags: Int get() = fragment.flags
+    override val width: Int get() = fragment.width
+    override val height: Int get() = fragment.height
 
     override fun get(index: Int): Slot = parent.get(getIndexInParent(index))
     override fun set(index: Int, slot: Slot) = parent.set(getIndexInParent(index), slot)

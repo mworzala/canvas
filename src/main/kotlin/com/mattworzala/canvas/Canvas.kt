@@ -5,6 +5,7 @@ package com.mattworzala.canvas
 import com.mattworzala.canvas.internal.SimpleRenderContext
 import it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue
 import it.unimi.dsi.fastutil.ints.IntPriorityQueue
+import net.minestom.server.data.Data
 import net.minestom.server.entity.Player
 import net.minestom.server.event.inventory.InventoryCloseEvent
 import net.minestom.server.event.inventory.InventoryPreClickEvent
@@ -43,22 +44,22 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
     /* Rendering */
 
     /**
-     * Renders a [Component] to a player.
+     * Renders a [Fragment] to a player.
      *
-     * @param component The [Component] to render.
-     * @param props The properties to pass
+     * @param fragment The [Fragment] to render.
+     * @param data The properties to pass
      */
     @Synchronized
     @JvmOverloads
-    fun render(component: Component, props: Props? = null) {
+    fun render(fragment: Fragment, data: Data? = null) {
         // Prep
-        val type = getInventoryType(component)
+        val type = getInventoryType(fragment)
         prepareInventory(type)
 
-        // Render component
-        val newContext = SimpleRenderContext(this, 0, component)
+        // Render fragment
+        val newContext = SimpleRenderContext(this, 0, fragment)
         root = newContext
-        newContext.render(props)
+        newContext.render(data)
 
         // Force an update so that the inventory is rendered when its opened.
         update()
@@ -150,17 +151,17 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
     /* Helpers */
 
     /**
-     * Determines the correct inventory size given a [component], and ensures that
-     * the component meets the sizing criteria to be a root node.
+     * Determines the correct inventory size given a [fragment], and ensures that
+     * the fragment meets the sizing criteria to be a root node.
      *
-     * @param component The component to be rendered
-     * @return The inventory type (size) required for the given component
-     * @throws IllegalStateException If the component is not a valid root
+     * @param fragment The fragment to be rendered
+     * @return The inventory type (size) required for the given fragment
+     * @throws IllegalStateException If the fragment is not a valid root
      */
-    private fun getInventoryType(component: Component): InventoryType {
-        if (component.width != 9)
+    private fun getInventoryType(fragment: Fragment): InventoryType {
+        if (fragment.width != 9)
             throw IllegalStateException("Canvases cannot directly render components with a width other than $CHEST_INVENTORY_WIDTH.")
-        return when (component.height) {
+        return when (fragment.height) {
             1 -> InventoryType.CHEST_1_ROW
             2 -> InventoryType.CHEST_2_ROW
             3 -> InventoryType.CHEST_3_ROW
@@ -172,11 +173,11 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
     }
 
     /**
-     * Prepares the [inventory] to render a new component of the given [type].
+     * Prepares the [inventory] to render a new fragment of the given [type].
      * If the inventory is already the correct type, it will reuse it. Otherwise,
      * a new inventory will be created.
      *
-     * @param type The type of the inventory required for the component
+     * @param type The type of the inventory required for the fragment
      */
     private fun prepareInventory(type: InventoryType) {
         dirtySlots.clear()

@@ -57,7 +57,7 @@ fun RenderContext.row(rows: IntRange, handler: SlotFunc = {}): List<Int> = apply
  * @return A list of slot indexes that were set.
  */
 internal fun RenderContext.col(col: Int): List<Int> {
-    Check.argCondition(col >= width, "Cannot get column outside bounds of component.")
+    Check.argCondition(col >= width, "Cannot get column outside bounds of fragment.")
     return (0 until height).map { (it * width) + col }
 }
 
@@ -69,7 +69,7 @@ internal fun RenderContext.col(col: Int): List<Int> {
  * @return A list of slot indexes that were set.
  */
 internal fun RenderContext.row(row: Int): List<Int> {
-    Check.argCondition(row >= height, "Cannot get row outside bounds of component.")
+    Check.argCondition(row >= height, "Cannot get row outside bounds of fragment.")
     val start = row * width
     return (start until (start + width)).toList()
 }

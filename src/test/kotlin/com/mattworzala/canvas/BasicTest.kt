@@ -4,37 +4,30 @@ package com.mattworzala.canvas
 
 import com.mattworzala.canvas.extra.col
 import com.mattworzala.canvas.extra.row
-import net.minestom.server.MinecraftServer
-import net.minestom.server.chat.ChatColor
-import net.minestom.server.chat.ColoredText
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import net.minestom.server.item.ItemStack
 import net.minestom.server.item.Material
 import kotlin.math.max
 import kotlin.math.min
 
-/* "Exported" Components */
-
-fun RenderContext.singleItem(index: Int, propHandler: MutableProps.() -> Unit = {}) =
-    child(index, SingleItemFromProps, mutablePropsOf(), propHandler)
-
-fun RenderContext.counter(index: Int) = child(index, BasicCounter, mutablePropsOf(), {})
-
 @JvmField
-val BasicItems = FunctionComponent(9, 5) {
-    get(0).item {
-        material = Material.GOLD_INGOT
-    }
-    get(10).item {
+val BasicItems = fragment(9, 5) {
+    this[0].item {
         material = Material.GOLD_INGOT
     }
 
-    counter(3)
+    this[10].item {
+        material = Material.GOLD_INGOT
+    }
 
-    singleItem(1) {
+    put(BasicCounter, 3)
+
+    put(SingleItemFromProps, 1) {
         this["item"] = ItemStack(Material.IRON_SHOVEL, 5)
     }
 
-    singleItem(25) {
+    put(SingleItemFromProps, 25) {
         this["item"] = ItemStack(Material.IRON_HELMET, 5)
     }
 
@@ -48,41 +41,42 @@ val BasicItems = FunctionComponent(9, 5) {
 }
 
 @JvmField
-val SingleItemFromProps = FunctionComponent(1, 1) {
-    val slot = get(0)
-    slot.item = props["item"]
-    slot.onClick = {
-        println("SingleItem was clicked!!!")
+val SingleItemFromProps = fragment {
+    this[0].apply {
+        item = data["item"]!!
+        onClick {
+            println("SingleItem was clicked!!!")
+        }
     }
 }
 
 @JvmField
-val BasicCounter = FunctionComponent(3, 1) {
+val BasicCounter = fragment(3) {
     var counter by useState(1)
 
     // Decrement
-    slot(0) {
+    this[0].apply {
         onClick { counter = max(1, counter - 1) }
         item {
             material = Material.RED_CONCRETE
-            displayName = ColoredText.of(ChatColor.RED, "Decrement")
+            displayName = Component.text("Decrement", NamedTextColor.RED)
         }
     }
 
     // Counter
-    item(1) {
+    this[1].item {
         material = Material.GLOWSTONE_DUST
         amount = counter.toByte()
     }
 
     // Increment
-    slot(2) {
+    this[0].apply {
         onClick {
             counter = min(64, counter + 1)
         }
         item {
             material = Material.GREEN_CONCRETE
-            displayName = ColoredText.of(ChatColor.BRIGHT_GREEN, "Increment")
+            displayName = Component.text("Increment", NamedTextColor.GREEN)
         }
     }
 }

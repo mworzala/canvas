@@ -2,6 +2,7 @@ package com.mattworzala.canvas.demo;
 
 import com.mattworzala.canvas.*;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.data.DataImpl;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.player.PlayerChatEvent;
@@ -46,10 +47,10 @@ public class MainDemo {
 
             switch (event.getMessage().toLowerCase()) {
                 case "basic":
-                    canvas.render(BasicTest.BasicItems, new MutableProps(event.getPlayer()));
+                    canvas.render(BasicTest.BasicItems, new DataImpl());
                     break;
                 case "flash":
-                    canvas.render(FlashingTest.FlashingInv, new MutableProps(event.getPlayer()));
+                    canvas.render(FlashingTest.FlashingInv, new DataImpl());
                     break;
                 default:
                     event.getPlayer().sendMessage("No inventory named '" + event.getMessage() + "'!");

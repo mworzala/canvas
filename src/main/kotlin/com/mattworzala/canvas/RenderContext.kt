@@ -1,6 +1,8 @@
 package com.mattworzala.canvas
 
 import com.mattworzala.canvas.internal.StateDispenser
+import net.minestom.server.data.Data
+import net.minestom.server.data.DataImpl
 
 /**
  * If this flag is set, the UI will be reset before a render.
@@ -20,7 +22,7 @@ const val CLEAR_ON_RENDER: Int = 0x1
 const val FORCE_STATE_UPDATE: Int = 0x2
 
 /**
- * The class used as the base for a component hierarchy and the component DSL.
+ * The class used as the base for a fragment hierarchy and the fragment DSL.
  *
  * See [SlotHolder] for slot manipulation methods.
  */
@@ -31,20 +33,22 @@ interface RenderContext : SlotHolder {
 
     /* Rendering */
 
-    val props: Props
+    val data: Data
 
-    fun child(x: Int, y: Int, component: Component, props: MutableProps = mutablePropsOf(), propHandler: Props.() -> Unit = {}) =
-        child(getIndex(x, y), component, props, propHandler)
+    fun child(x: Int, y: Int, fragment: Fragment, data: Data = DataImpl(), dataHandler: Data.() -> Unit = {}) =
+        child(getIndex(x, y), fragment, data, dataHandler)
 
-    fun child(index: Int, component: Component, props: MutableProps = mutablePropsOf(), propHandler: MutableProps.() -> Unit = {})
+    fun child(index: Int, fragment: Fragment, data: Data = DataImpl(), dataHandler: Data.() -> Unit = {})
 
     /* Lifecycle */
 
-    fun render(props: Props? = null)
+    fun render(data: Data? = null)
 
     fun update()
 
     fun cleanup()
 
     fun onCleanup(handler: Effect)
+
+    fun put(fragment: Fragment, index: Int, dataHandler: Data.() -> Unit = {}) = child(index, fragment, dataHandler = dataHandler)
 }

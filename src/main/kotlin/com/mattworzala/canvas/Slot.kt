@@ -1,9 +1,10 @@
 package com.mattworzala.canvas
 
+import com.mattworzala.canvas.extra.col
+import com.mattworzala.canvas.extra.row
 import net.minestom.server.event.inventory.InventoryPreClickEvent
 import net.minestom.server.item.ItemStack
 import net.minestom.server.item.Material
-import com.mattworzala.canvas.extra.*
 
 typealias ItemFunc = ItemStack.() -> Unit
 typealias SlotFunc = Slot.() -> Unit
@@ -23,6 +24,7 @@ class Slot internal constructor(
      * Will trigger when someone clicks on the slot.
      */
     var onClick: ClickHandler? = null
+        private set
 
     /**
      * Kotlin DSL for defining item properties
@@ -69,7 +71,7 @@ interface SlotHolder {
      *
      * @return The slot that is in that [index]
      */
-    fun get(index: Int): Slot
+    operator fun get(index: Int): Slot
 
     /**
      * Sets a slot to an index
@@ -77,7 +79,7 @@ interface SlotHolder {
      * @param index The index where the slot should be
      * @param slot The slot to place at that [index]
      */
-    fun set(index: Int, slot: Slot)
+    operator fun set(index: Int, slot: Slot)
 
     /**
      * Used to apply the same slot to a group of slots in the inventory.

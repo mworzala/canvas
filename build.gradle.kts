@@ -22,13 +22,20 @@ dependencies {
     compileOnly(kotlin("reflect"))
 
     // Minestom
-    compileOnly("com.github.Minestom:Minestom:fc694f4b49")
+    compileOnly("com.github.Minestom:Minestom:9a8b6e2a11")
 
     testImplementation(kotlin("reflect"))
-    testImplementation("com.github.Minestom:Minestom:fc694f4b49")
+    testImplementation("com.github.Minestom:Minestom:9a8b6e2a11")
 }
 
-configure<JavaPluginExtension> {
+java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> { kotlinOptions.jvmTarget = "11" }
+val compileKotlin: org.jetbrains.kotlin.gradle.tasks.KotlinCompile by tasks
+
+compileKotlin.kotlinOptions {
+    freeCompilerArgs = listOf("-Xinline-classes")
 }
