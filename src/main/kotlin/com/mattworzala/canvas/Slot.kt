@@ -18,7 +18,7 @@ class Slot internal constructor(
     /**
      * The item in the slot
      */
-    var item: ItemStack = ItemStack.of(Material.AIR)
+    var item: ItemStack = ItemStack.AIR
 ) {
     /**
      * The clicker in the slot.
@@ -51,7 +51,7 @@ class Slot internal constructor(
      * Resets the item to air and the clicker to nothing.
      */
     fun reset() {
-        item = ItemStack.of(Material.AIR)
+        item = ItemStack.AIR
         onClick = null
     }
 }
