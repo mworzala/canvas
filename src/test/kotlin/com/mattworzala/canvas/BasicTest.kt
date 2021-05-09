@@ -13,28 +13,24 @@ import kotlin.math.min
 
 @JvmField
 val BasicItems = fragment(9, 5) {
-    this[0].item {
-        material = Material.GOLD_INGOT
-    }
+    this[0].item(Material.GOLD_INGOT)
 
-    this[10].item {
-        material = Material.GOLD_INGOT
-    }
+    this[10].item(Material.GOLD_INGOT)
 
     put(BasicCounter, 3)
 
     put(SingleItemFromProps, 1) {
-        this["item"] = ItemStack(Material.IRON_SHOVEL, 5)
+        this["item"] = ItemStack.of(Material.IRON_SHOVEL, 5)
     }
 
     put(SingleItemFromProps, 25) {
-        this["item"] = ItemStack(Material.IRON_HELMET, 5)
+        this["item"] = ItemStack.of(Material.IRON_HELMET, 5)
     }
 
     row(4) {
-        item = ItemStack(Material.BLACK_STAINED_GLASS_PANE, 1)
+        item = ItemStack.of(Material.BLACK_STAINED_GLASS_PANE)
     }
-    val border = ItemStack(Material.BLACK_STAINED_GLASS_PANE, 1)
+    val border = ItemStack.of(Material.BLACK_STAINED_GLASS_PANE)
     col(8) {
         item = border
     }
@@ -57,16 +53,14 @@ val BasicCounter = fragment(3) {
     // Decrement
     this[0].apply {
         onClick { counter = max(1, counter - 1) }
-        item {
-            material = Material.RED_CONCRETE
-            displayName = Component.text("Decrement", NamedTextColor.RED)
+        item(Material.RED_CONCRETE) {
+            displayName(Component.text("Decrement", NamedTextColor.RED))
         }
     }
 
     // Counter
-    this[1].item {
-        material = Material.GLOWSTONE_DUST
-        amount = counter.toByte()
+    this[1].item(Material.GLOWSTONE_DUST) {
+        amount(counter)
     }
 
     // Increment
@@ -74,9 +68,8 @@ val BasicCounter = fragment(3) {
         onClick {
             counter = min(64, counter + 1)
         }
-        item {
-            material = Material.GREEN_CONCRETE
-            displayName = Component.text("Increment", NamedTextColor.GREEN)
+        item(Material.GREEN_CONCRETE) {
+            displayName(Component.text("Increment", NamedTextColor.GREEN))
         }
     }
 }
