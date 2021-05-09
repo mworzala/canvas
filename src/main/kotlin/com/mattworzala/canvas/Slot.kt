@@ -4,9 +4,10 @@ import com.mattworzala.canvas.extra.col
 import com.mattworzala.canvas.extra.row
 import net.minestom.server.event.inventory.InventoryPreClickEvent
 import net.minestom.server.item.ItemStack
+import net.minestom.server.item.ItemStackBuilder
 import net.minestom.server.item.Material
 
-typealias ItemFunc = ItemStack.() -> Unit
+typealias ItemFunc = ItemStackBuilder.() -> Unit
 typealias SlotFunc = Slot.() -> Unit
 typealias ClickHandler = Slot.(InventoryPreClickEvent) -> Unit
 
@@ -17,7 +18,7 @@ class Slot internal constructor(
     /**
      * The item in the slot
      */
-    var item: ItemStack = ItemStack(Material.AIR, 1)
+    var item: ItemStack = ItemStack.of(Material.AIR)
 ) {
     /**
      * The clicker in the slot.
@@ -31,9 +32,10 @@ class Slot internal constructor(
      *
      * @param func The item function for property decleration.
      */
-    fun item(func: ItemFunc) {
-        item = ItemStack(Material.AIR, 1)
-        item.func()
+    fun item(material: Material, func: ItemFunc = {}) {
+        val itemBuilder = ItemStack.builder(material)
+        itemBuilder.func()
+        item = itemBuilder.build()
     }
 
     /**
@@ -49,7 +51,7 @@ class Slot internal constructor(
      * Resets the item to air and the clicker to nothing.
      */
     fun reset() {
-        item = ItemStack(Material.AIR, 1)
+        item = ItemStack.of(Material.AIR)
         onClick = null
     }
 }
@@ -100,9 +102,9 @@ interface SlotHolder {
 
     fun slot(index: Int, handler: SlotFunc) = handler(get(index))
 
-    fun item(x: Int, y: Int, handler: ItemFunc) = item(getIndex(x, y), handler)
+    fun item(x: Int, y: Int, material: Material, handler: ItemFunc = {}) = item(getIndex(x, y), material, handler)
 
-    fun item(index: Int, handler: ItemFunc) = get(index).item(handler)
+    fun item(index: Int, material: Material, handler: ItemFunc = {}) = get(index).item(material, handler)
 }
 
 internal fun ItemStack.asSlot(): Slot = Slot(this)

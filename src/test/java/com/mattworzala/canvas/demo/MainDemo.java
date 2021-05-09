@@ -38,7 +38,7 @@ public class MainDemo {
         globalEventHandler.addEventCallback(PlayerLoginEvent.class, event -> {
             final Player player = event.getPlayer();
             event.setSpawningInstance(instanceContainer);
-            player.getInventory().addItemStack(new ItemStack(Material.STONE, (byte) 100));
+            player.getInventory().addItemStack(ItemStack.of(Material.STONE, 100));
             player.setRespawnPoint(new Position(0, 42, 0));
         });
 

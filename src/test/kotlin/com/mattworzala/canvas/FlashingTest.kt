@@ -31,7 +31,7 @@ val FlashingInv = fragment(9, 5) {
             000000000
         """.trimIndent()
 
-        fill(ItemStack(Material.BLACK_STAINED_GLASS_PANE, 1))
+        fill(ItemStack.of(Material.BLACK_STAINED_GLASS_PANE, 1))
     }
 
     mask {
@@ -43,7 +43,7 @@ val FlashingInv = fragment(9, 5) {
             111111111
         """.trimIndent()
 
-        fill(ItemStack(Material.fromId((WHITE_STAINED_GLASS_PANE + color).toShort()), 1))
+        fill(ItemStack.of(Material.fromId((WHITE_STAINED_GLASS_PANE + color).toShort()), 1))
     }
 
     put(BasicCounter, 21)

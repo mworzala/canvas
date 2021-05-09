@@ -6,13 +6,13 @@ plugins {
 }
 
 repositories {
-    jcenter()
     mavenCentral()
+
     maven(url = "https://jitpack.io")
     maven(url = "https://jcenter.bintray.com/")
-
     maven(url = "https://repo.spongepowered.org/maven")
     maven(url = "https://libraries.minecraft.net")
+    maven(url = "https://repo.velocitypowered.com/snapshots/")
 }
 
 dependencies {
@@ -22,10 +22,10 @@ dependencies {
     compileOnly(kotlin("reflect"))
 
     // Minestom
-    compileOnly("com.github.Minestom:Minestom:9a8b6e2a11")
+    compileOnly("com.github.Minestom:Minestom:5d7a49c009")
 
     testImplementation(kotlin("reflect"))
-    testImplementation("com.github.Minestom:Minestom:9a8b6e2a11")
+    testImplementation("com.github.Minestom:Minestom:5d7a49c009")
 }
 
 java {
