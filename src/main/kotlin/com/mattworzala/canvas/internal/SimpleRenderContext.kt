@@ -4,6 +4,7 @@ import com.mattworzala.canvas.*
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.minestom.server.data.Data
+import net.minestom.server.data.DataImpl
 import java.util.*
 import java.util.function.IntFunction
 
@@ -27,7 +28,7 @@ class SimpleRenderContext(
 
     private var _data: Data? = null
     override val data: Data
-        get() = _data!!
+        get() = _data ?: DataImpl()
 
     override fun child(index: Int, fragment: Fragment, data: Data, dataHandler: Data.() -> Unit) {
         val childId = Objects.hash(index, fragment)
