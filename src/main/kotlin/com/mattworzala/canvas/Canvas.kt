@@ -44,14 +44,14 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
     /* Rendering */
 
     /**
-     * Renders a [Fragment] to a player.
+     * Renders a [OldFragment] to a player.
      *
-     * @param fragment The [Fragment] to render.
+     * @param fragment The [OldFragment] to render.
      * @param data The properties to pass
      */
     @Synchronized
     @JvmOverloads
-    fun render(fragment: Fragment, data: Data? = null) {
+    fun render(fragment: OldFragment, data: Data? = null) {
         // Prep
         val type = getInventoryType(fragment)
         prepareInventory(type)
@@ -158,7 +158,7 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
      * @return The inventory type (size) required for the given fragment
      * @throws IllegalStateException If the fragment is not a valid root
      */
-    private fun getInventoryType(fragment: Fragment): InventoryType {
+    private fun getInventoryType(fragment: OldFragment): InventoryType {
         if (fragment.width != 9)
             throw IllegalStateException("Canvases cannot directly render components with a width other than $CHEST_INVENTORY_WIDTH.")
         return when (fragment.height) {

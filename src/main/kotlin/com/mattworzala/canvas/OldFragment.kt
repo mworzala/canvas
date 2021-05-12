@@ -3,12 +3,44 @@ package com.mattworzala.canvas
 import com.mattworzala.canvas.CanvasProvider.canvas
 import net.minestom.server.entity.Player
 
+// Heavily inspired by Jetpack Compose's @Composable
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    // function declarations
+    // @Fragment fun Foo() { ... }
+    // lambda expressions
+    // val foo = @Fragment { ... }
+    AnnotationTarget.FUNCTION,
+
+    // type declarations
+    // var foo: @Fragment () -> Unit = { ... }
+    // parameter types
+    // foo: @Fragment () -> Unit
+    AnnotationTarget.TYPE,
+
+    // fragment types inside of type signatures
+    // foo: (@Fragment () -> Unit) -> Unit
+    AnnotationTarget.TYPE_PARAMETER,
+
+    // fragment property getters and setters
+    // val foo: Int @Fragment get() { ... }
+    // var bar: Int
+    //   @Fragment get() { ... }
+    AnnotationTarget.PROPERTY_GETTER
+)
+annotation class Fragment
+
+class FragmentContext {
+
+}
+
+
 /**
- * A [Fragment] is a part of a UI that can do things.
+ * A [OldFragment] is a part of a UI that can do things.
  *
  * Similar to components in modern web frameworks.
  */
-interface Fragment {
+interface OldFragment {
     /** The width of the fragment. */
     val width: Int
     
@@ -39,7 +71,7 @@ class FunctionFragment(
     /** The flags as a vararg. Used for simplifying constructors. */
     vararg flags: Int = intArrayOf(),
     override val handler: RenderContext.() -> Unit
-) : Fragment {
+) : OldFragment {
     override val flags: Int = if (flags.isEmpty()) 0 else flags.reduce { acc, i -> acc or i }
 }
 

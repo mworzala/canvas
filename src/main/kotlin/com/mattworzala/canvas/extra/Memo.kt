@@ -1,11 +1,11 @@
 package com.mattworzala.canvas.extra
 
-import com.mattworzala.canvas.Fragment
+import com.mattworzala.canvas.OldFragment
 import com.mattworzala.canvas.RenderContext
 import com.mattworzala.canvas.useState
 import net.minestom.server.data.Data
 
-fun memo(fragment: Fragment): Fragment = MemoFragment(fragment)
+fun memo(fragment: OldFragment): OldFragment = MemoFragment(fragment)
 
 /**
  * A memoized fragment, useful if a fragment is expensive to re render.
@@ -15,7 +15,7 @@ fun memo(fragment: Fragment): Fragment = MemoFragment(fragment)
  *
  * State changes still cause a rerender
  */
-private class MemoFragment(val fragment: Fragment) : Fragment {
+private class MemoFragment(val fragment: OldFragment) : OldFragment {
     override val width get() = fragment.width
     override val height get() = fragment.height
     override val flags get() = fragment.flags

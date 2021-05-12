@@ -1,10 +1,9 @@
-package com.mattworzala.canvas.compiler.ir
+package com.mattworzala.canvas.compiler.debuglog
 
-import com.mattworzala.canvas.compiler.CanvasPlugin
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
+import compile
 import kotlin.test.assertEquals
-import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar
 import org.junit.Test
 
 class TemplateIrGenerationExtensionTest {
@@ -34,23 +33,4 @@ class TemplateIrGenerationExtensionTest {
         val main = kClazz.declaredMethods.single { it.name == "main" && it.parameterCount == 0 }
         main.invoke(null)
     }
-}
-
-fun compile(
-    sourceFiles: List<SourceFile>,
-    plugin: ComponentRegistrar = CanvasPlugin(),
-): KotlinCompilation.Result {
-    return KotlinCompilation().apply {
-        sources = sourceFiles
-        useIR = true
-        compilerPlugins = listOf(plugin)
-        inheritClassPath = true
-    }.compile()
-}
-
-fun compile(
-    sourceFile: SourceFile,
-    plugin: ComponentRegistrar = CanvasPlugin(),
-): KotlinCompilation.Result {
-    return compile(listOf(sourceFile), plugin)
 }

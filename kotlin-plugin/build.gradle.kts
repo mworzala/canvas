@@ -17,6 +17,8 @@ dependencies {
     testImplementation(kotlin("test-junit"))
     testImplementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:1.5.0")
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing:1.4.0")
+
+    testImplementation(project(":"))
 }
 
 publishing {

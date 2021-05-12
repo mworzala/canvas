@@ -15,7 +15,7 @@ import java.util.function.IntFunction
 class SimpleRenderContext(
     private val parent: SlotHolder,
     private val offset: Int,
-    private val fragment: Fragment
+    private val fragment: OldFragment
 ) : RenderContext {
     private val children: Int2ObjectMap<RenderContext> = Int2ObjectOpenHashMap()
     private val cleanupEffects: MutableList<Effect> = mutableListOf()
@@ -30,7 +30,7 @@ class SimpleRenderContext(
     override val data: Data
         get() = _data ?: DataImpl()
 
-    override fun child(index: Int, fragment: Fragment, data: Data, dataHandler: Data.() -> Unit) {
+    override fun child(index: Int, fragment: OldFragment, data: Data, dataHandler: Data.() -> Unit) {
         val childId = Objects.hash(index, fragment)
 
         @Suppress("UNCHECKED_CAST")

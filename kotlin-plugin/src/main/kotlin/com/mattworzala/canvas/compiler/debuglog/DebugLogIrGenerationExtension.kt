@@ -1,4 +1,4 @@
-package com.mattworzala.canvas.compiler.ir
+package com.mattworzala.canvas.compiler.debuglog
 
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext

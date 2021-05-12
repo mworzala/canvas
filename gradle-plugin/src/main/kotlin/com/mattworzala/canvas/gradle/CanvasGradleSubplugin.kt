@@ -7,6 +7,10 @@ import org.jetbrains.kotlin.gradle.plugin.*
 class CanvasGradleSubplugin : KotlinCompilerPluginSupportPlugin {
     override fun apply(target: Project) {
         // todo could add extensions if helpful
+
+        //todo add an enabled option
+        //todo add an option for whether to add canvas as a dependency (could also accept version)
+        //     ie `version = null` to disable or `verson = "123cvvwd"`
     }
 
     override fun getCompilerPluginId(): String = "canvas-compiler-plugin"
