@@ -2,6 +2,7 @@ package com.mattworzala.canvas.compiler.ir
 
 import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
+import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.declarations.addValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
@@ -13,6 +14,7 @@ import org.jetbrains.kotlin.ir.util.dump
 import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.resolve.calls.checkers.CallChecker
 import kotlin.math.exp
 
 class FragmentTransformer(
@@ -22,6 +24,9 @@ class FragmentTransformer(
     private val classFragmentContext = pluginContext.referenceClass(FqName("com.mattworzala.canvas.FragmentContext"))!!
 
     override fun visitFunctionNew(declaration: IrFunction): IrStatement {
+        println("FUNCTION")
+
+        var pe: PsiElement
         if (!declaration.hasAnnotation(annotationFragment))
             return super.visitFunctionNew(declaration)
 

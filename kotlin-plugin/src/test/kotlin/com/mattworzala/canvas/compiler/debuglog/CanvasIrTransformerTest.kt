@@ -21,7 +21,8 @@ fun TestFragment() {
 }
 
 fun main() {
-    drawFragment(FragmentContext(), ::TestFragment)
+    (TestFragment() as (FragmentContext) -> Unit)(FragmentContext())
+//    drawFragment(FragmentContext(), ::TestFragment)
 }
 """
 

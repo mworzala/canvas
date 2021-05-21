@@ -10,6 +10,8 @@ import org.jetbrains.kotlin.com.intellij.mock.MockProject
 import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar
 import org.jetbrains.kotlin.config.CompilerConfiguration
 
+
+//https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-main/compose/compiler/compiler-hosted/src/main/resources/META-INF/services/org.jetbrains.kotlin.diagnostics.rendering.DefaultErrorMessages%24Extension
 @AutoService(ComponentRegistrar::class)
 class CanvasPlugin : ComponentRegistrar {
     override fun registerProjectComponents(project: MockProject, configuration: CompilerConfiguration) {
