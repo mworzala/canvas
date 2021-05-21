@@ -20,7 +20,7 @@ package com.mattworzala.canvas.compiler.v2.lower
 import com.mattworzala.canvas.compiler.v2.ComposeFqNames
 import com.mattworzala.canvas.compiler.v2.analysis.ComposeWritableSlices
 import com.mattworzala.canvas.compiler.v2.analysis.knownStable
-import androidx.compose.compiler.plugins.kotlin.irTrace
+import com.mattworzala.canvas.compiler.v2.irTrace
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContextImpl
 import org.jetbrains.kotlin.backend.common.ir.addChild

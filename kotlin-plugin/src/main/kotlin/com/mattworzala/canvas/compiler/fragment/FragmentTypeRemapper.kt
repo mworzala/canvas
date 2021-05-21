@@ -1,27 +1,7 @@
-/*
- * Copyright 2020 The Android Open Source Project
- * Copyright 2021 Canvas Contributors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+package com.mattworzala.canvas.compiler.fragment
 
-package com.mattworzala.canvas.compiler.v2.lower
-
-import com.mattworzala.canvas.compiler.v2.ComposeFqNames
-import com.mattworzala.canvas.compiler.v2.lower.decoys.isDecoy
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContextImpl
-import org.jetbrains.kotlin.backend.common.peek
 import org.jetbrains.kotlin.backend.common.pop
 import org.jetbrains.kotlin.builtins.isFunctionType
 import org.jetbrains.kotlin.descriptors.ClassDescriptor
@@ -29,17 +9,7 @@ import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.builders.declarations.addValueParameter
-import org.jetbrains.kotlin.ir.declarations.IrClass
-import org.jetbrains.kotlin.ir.declarations.IrConstructor
-import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.declarations.IrField
-import org.jetbrains.kotlin.ir.declarations.IrFile
-import org.jetbrains.kotlin.ir.declarations.IrFunction
-import org.jetbrains.kotlin.ir.declarations.IrMetadataSourceOwner
-import org.jetbrains.kotlin.ir.declarations.IrProperty
-import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
-import org.jetbrains.kotlin.ir.declarations.IrTypeParametersContainer
-import org.jetbrains.kotlin.ir.declarations.copyAttributes
+import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.declarations.impl.IrFileImpl
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
@@ -47,30 +17,121 @@ import org.jetbrains.kotlin.ir.expressions.IrMemberAccessExpression
 import org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstructorCallImpl
 import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
-import org.jetbrains.kotlin.ir.types.IrSimpleType
-import org.jetbrains.kotlin.ir.types.IrType
-import org.jetbrains.kotlin.ir.types.IrTypeAbbreviation
-import org.jetbrains.kotlin.ir.types.IrTypeArgument
-import org.jetbrains.kotlin.ir.types.IrTypeProjection
-import org.jetbrains.kotlin.ir.types.classifierOrNull
+import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeImpl
 import org.jetbrains.kotlin.ir.types.impl.IrTypeAbbreviationImpl
 import org.jetbrains.kotlin.ir.types.impl.makeTypeProjection
-import org.jetbrains.kotlin.ir.types.isClassWithFqName
-import org.jetbrains.kotlin.ir.util.DeepCopyIrTreeWithSymbols
-import org.jetbrains.kotlin.ir.util.DeepCopySymbolRemapper
-import org.jetbrains.kotlin.ir.util.SymbolRemapper
-import org.jetbrains.kotlin.ir.util.SymbolRenamer
-import org.jetbrains.kotlin.ir.util.TypeRemapper
-import org.jetbrains.kotlin.ir.util.TypeTranslator
-import org.jetbrains.kotlin.ir.util.functions
-import org.jetbrains.kotlin.ir.util.hasAnnotation
-import org.jetbrains.kotlin.ir.util.patchDeclarationParents
+import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.Variance
+
+class FragmentTypeRemapper(
+    private val context: IrPluginContext,
+    private val symbolRemapper: SymbolRemapper,
+    private val typeTranslator: TypeTranslator,
+    private val fragmentType: IrType
+) : TypeRemapper {
+    lateinit var deepCopy: IrElementTransformerVoid
+
+    private val scopeStack = mutableListOf<IrTypeParametersContainer>()
+
+    override fun enterScope(irTypeParametersContainer: IrTypeParametersContainer) {
+        scopeStack.add(irTypeParametersContainer)
+    }
+
+    override fun leaveScope() {
+        scopeStack.pop()
+    }
+
+    private fun IrType.isFragment(): Boolean =
+        annotations.hasAnnotation(FragmentFqNames.Fragment)
+
+    private val IrConstructorCall.annotationClass
+        get() = this.symbol.owner.returnType.classifierOrNull
+
+    private fun List<IrConstructorCall>.hasAnnotation(fqName: FqName): Boolean =
+        any { it.annotationClass?.isClassWithFqName(fqName.toUnsafe()) ?: false }
+
+    private fun KotlinType.toIrType(): IrType = typeTranslator.translateType(this)
+
+    @OptIn(ObsoleteDescriptorBasedAPI::class)
+    private fun IrType.isFunction(): Boolean {
+        val classifier = classifierOrNull ?: return false
+        val name = classifier.descriptor.name.asString()
+        if (!name.startsWith("Function")) return false
+        classifier.descriptor.name
+        return true
+    }
+
+    override fun remapType(type: IrType): IrType {
+        if (type !is IrSimpleType) return type
+        if (!type.isFunction()) return underlyingRemapType(type)
+        if (!type.isFragment()) return underlyingRemapType(type)
+
+        val oldIrArguments = type.arguments
+        val realParams = oldIrArguments.size - 1
+        var extraArgs = listOf(
+            // fragment param
+            makeTypeProjection(
+                fragmentType,
+                Variance.INVARIANT
+            )
+        )
+        val changedParams = changedParamCount(realParams, 1)
+        extraArgs = extraArgs + (0 until changedParams).map {
+            makeTypeProjection(context.irBuiltIns.intType, Variance.INVARIANT)
+        }
+        val newIrArguments = oldIrArguments
+            .subList(0, oldIrArguments.size - 1) + extraArgs + oldIrArguments.last()
+
+        val newArgSize = oldIrArguments.size - 1 + extraArgs.size
+        val functionCls = context.function(newArgSize)
+
+        return IrSimpleTypeImpl(
+            null,
+            functionCls,
+            type.hasQuestionMark,
+            newIrArguments.map { remapTypeArgument(it) },
+            type.annotations.filter { !it.isFragmentAnnotation() }.map {
+                it.transform(deepCopy, null) as IrConstructorCall
+            },
+            null
+        )
+    }
+
+    private fun underlyingRemapType(type: IrSimpleType): IrType {
+        return IrSimpleTypeImpl(
+            null,
+            symbolRemapper.getReferencedClassifier(type.classifier),
+            type.hasQuestionMark,
+            type.arguments.map { remapTypeArgument(it) },
+            type.annotations.map { it.transform(deepCopy, null) as IrConstructorCall },
+            type.abbreviation?.remapTypeAbbreviation()
+        )
+    }
+
+    private fun remapTypeArgument(typeArgument: IrTypeArgument): IrTypeArgument =
+        if (typeArgument is IrTypeProjection)
+            makeTypeProjection(this.remapType(typeArgument.type), typeArgument.variance)
+        else
+            typeArgument
+
+    private fun IrTypeAbbreviation.remapTypeAbbreviation() =
+        IrTypeAbbreviationImpl(
+            symbolRemapper.getReferencedTypeAlias(typeAlias),
+            hasQuestionMark,
+            arguments.map { remapTypeArgument(it) },
+            annotations
+        )
+}
+
+@OptIn(ObsoleteDescriptorBasedAPI::class)
+private fun IrConstructorCall.isFragmentAnnotation() =
+    this.symbol.descriptor.returnType.constructor.declarationDescriptor?.fqNameSafe ==
+            FragmentFqNames.Fragment
 
 class DeepCopyIrTreeWithSymbolsPreservingMetadata(
     private val context: IrPluginContext,
@@ -351,124 +412,8 @@ class DeepCopyIrTreeWithSymbolsPreservingMetadata(
     }
 
     private fun IrType.isComposable(): Boolean {
-        return annotations.hasAnnotation(ComposeFqNames.Fragment)
+        return annotations.hasAnnotation(FragmentFqNames.Fragment)
     }
 
     private fun KotlinType.toIrType(): IrType = typeTranslator.translateType(this)
 }
-
-@Suppress("DEPRECATION")
-class ComposerTypeRemapper(
-    private val context: IrPluginContext,
-    private val symbolRemapper: SymbolRemapper,
-    private val typeTranslator: TypeTranslator,
-    private val composerType: IrType
-) : TypeRemapper {
-
-    lateinit var deepCopy: IrElementTransformerVoid
-
-    private val scopeStack = mutableListOf<IrTypeParametersContainer>()
-
-    override fun enterScope(irTypeParametersContainer: IrTypeParametersContainer) {
-        scopeStack.add(irTypeParametersContainer)
-    }
-
-    override fun leaveScope() {
-        scopeStack.pop()
-    }
-
-    private fun IrType.isComposable(): Boolean {
-        return annotations.hasAnnotation(ComposeFqNames.Fragment)
-    }
-
-    @OptIn(ObsoleteDescriptorBasedAPI::class)
-    private val IrConstructorCall.annotationClass
-        get() = this.symbol.owner.returnType.classifierOrNull
-
-    private fun List<IrConstructorCall>.hasAnnotation(fqName: FqName): Boolean =
-        any { it.annotationClass?.isClassWithFqName(fqName.toUnsafe()) ?: false }
-
-    private fun KotlinType.toIrType(): IrType = typeTranslator.translateType(this)
-
-    @OptIn(ObsoleteDescriptorBasedAPI::class)
-    private fun IrType.isFunction(): Boolean {
-        val classifier = classifierOrNull ?: return false
-        val name = classifier.descriptor.name.asString()
-        if (!name.startsWith("Function")) return false
-        classifier.descriptor.name
-        return true
-    }
-
-    override fun remapType(type: IrType): IrType {
-        if (type !is IrSimpleType) return type
-        if (!type.isFunction()) return underlyingRemapType(type)
-        if (!type.isComposable()) return underlyingRemapType(type)
-        // do not convert types for decoys
-        if (scopeStack.peek()?.isDecoy() == true) {
-            return underlyingRemapType(type)
-        }
-
-        val oldIrArguments = type.arguments
-        val realParams = oldIrArguments.size - 1
-        var extraArgs = listOf(
-            // composer param
-            makeTypeProjection(
-                composerType,
-                Variance.INVARIANT
-            )
-        )
-        val changedParams = changedParamCount(realParams, 1)
-        extraArgs = extraArgs + (0 until changedParams).map {
-            makeTypeProjection(context.irBuiltIns.intType, Variance.INVARIANT)
-        }
-        val newIrArguments =
-            oldIrArguments.subList(0, oldIrArguments.size - 1) +
-                extraArgs +
-                oldIrArguments.last()
-
-        val newArgSize = oldIrArguments.size - 1 + extraArgs.size
-        val functionCls = context.function(newArgSize)
-
-        return IrSimpleTypeImpl(
-            null,
-            functionCls,
-            type.hasQuestionMark,
-            newIrArguments.map { remapTypeArgument(it) },
-            type.annotations.filter { !it.isComposableAnnotation() }.map {
-                it.transform(deepCopy, null) as IrConstructorCall
-            },
-            null
-        )
-    }
-
-    private fun underlyingRemapType(type: IrSimpleType): IrType {
-        return IrSimpleTypeImpl(
-            null,
-            symbolRemapper.getReferencedClassifier(type.classifier),
-            type.hasQuestionMark,
-            type.arguments.map { remapTypeArgument(it) },
-            type.annotations.map { it.transform(deepCopy, null) as IrConstructorCall },
-            type.abbreviation?.remapTypeAbbreviation()
-        )
-    }
-
-    private fun remapTypeArgument(typeArgument: IrTypeArgument): IrTypeArgument =
-        if (typeArgument is IrTypeProjection)
-            makeTypeProjection(this.remapType(typeArgument.type), typeArgument.variance)
-        else
-            typeArgument
-
-    private fun IrTypeAbbreviation.remapTypeAbbreviation() =
-        IrTypeAbbreviationImpl(
-            symbolRemapper.getReferencedTypeAlias(typeAlias),
-            hasQuestionMark,
-            arguments.map { remapTypeArgument(it) },
-            annotations
-        )
-}
-
-@OptIn(ObsoleteDescriptorBasedAPI::class)
-private fun IrConstructorCall.isComposableAnnotation() =
-    @Suppress("DEPRECATION")
-    this.symbol.descriptor.returnType.constructor.declarationDescriptor?.fqNameSafe ==
-        ComposeFqNames.Fragment

@@ -1,21 +1,4 @@
-/*
- * Copyright 2019 The Android Open Source Project
- * Copyright 2021 Canvas Contributors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-package com.mattworzala.canvas.compiler.v2
+package com.mattworzala.canvas.compiler.fragment
 
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.codegen.state.GenerationState
@@ -24,7 +7,7 @@ import org.jetbrains.kotlin.ir.declarations.IrAttributeContainer
 import org.jetbrains.kotlin.psi2ir.generators.GeneratorContext
 import org.jetbrains.kotlin.util.slicedMap.ReadOnlySlice
 import org.jetbrains.kotlin.util.slicedMap.WritableSlice
-import java.util.WeakHashMap
+import java.util.*
 
 /**
  * This class is meant to have the shape of a BindingTrace object that could exist and flow
@@ -50,14 +33,14 @@ class WeakBindingTrace {
     }
 }
 
-private val ComposeTemporaryGlobalBindingTrace = WeakBindingTrace()
+private val FragmentTemporaryGlobalBindingTrace = WeakBindingTrace()
 
 @Suppress("unused")
 val GeneratorContext.irTrace: WeakBindingTrace
-    get() = ComposeTemporaryGlobalBindingTrace
+    get() = FragmentTemporaryGlobalBindingTrace
 @Suppress("unused")
 val GenerationState.irTrace: WeakBindingTrace
-    get() = ComposeTemporaryGlobalBindingTrace
+    get() = FragmentTemporaryGlobalBindingTrace
 @Suppress("unused")
 val IrPluginContext.irTrace: WeakBindingTrace
-    get() = ComposeTemporaryGlobalBindingTrace
+    get() = FragmentTemporaryGlobalBindingTrace

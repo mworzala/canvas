@@ -36,33 +36,33 @@ import org.jetbrains.kotlin.types.TypeUtils.UNIT_EXPECTED_TYPE
 import org.jetbrains.kotlin.types.typeUtil.replaceAnnotations
 
 object ComposeFqNames {
-    private const val root = "androidx.compose.runtime"
+    private const val root = "com.mattworzala.canvas"
     private const val internalRoot = "$root.internal"
     fun fqNameFor(cname: String) = FqName("$root.$cname")
     fun internalFqNameFor(cname: String) = FqName("$internalRoot.$cname")
 
-    val Composable = fqNameFor("Composable")
+    val Fragment = fqNameFor("Fragment")
     val internal = fqNameFor("internal")
-    val CurrentComposerIntrinsic = fqNameFor("<get-currentComposer>")
-    val DisallowComposableCalls = fqNameFor("DisallowComposableCalls")
-    val ReadOnlyComposable = fqNameFor("ReadOnlyComposable")
-    val ExplicitGroupsComposable = fqNameFor("ExplicitGroupsComposable")
-    val NonRestartableComposable = fqNameFor("NonRestartableComposable")
-    val composableLambda = internalFqNameFor("composableLambda")
-    val composableLambdaInstance = internalFqNameFor("composableLambdaInstance")
-    val remember = fqNameFor("remember")
-    val key = fqNameFor("key")
-    val StableMarker = fqNameFor("StableMarker")
-    val Stable = fqNameFor("Stable")
-    val Composer = fqNameFor("Composer")
-    val ComposeVersion = fqNameFor("ComposeVersion")
-    val Package = FqName(root)
-    val StabilityInferred = internalFqNameFor("StabilityInferred")
+    val CurrentFragmentIntrinsic = fqNameFor("<get-currentFragment>")
+    val DisallowComposableCalls = fqNameFor("DisallowFragmentCalls")
+    val ReadOnlyComposable = fqNameFor("ReadOnlyFragment")
+    val ExplicitGroupsComposable = fqNameFor("ExplicitGroupsFragment")
+    val NonRestartableComposable = fqNameFor("NonRestartableFragment")
+    val composableLambda = internalFqNameFor("composableLambda") //todo
+    val composableLambdaInstance = internalFqNameFor("composableLambdaInstance") //todo
+    val remember = fqNameFor("remember") //todo
+    val key = fqNameFor("key") //todo
+    val StableMarker = fqNameFor("StableMarker") //todo
+    val Stable = fqNameFor("Stable") //todo
+    val Composer = fqNameFor("Composer") //todo
+    val ComposeVersion = fqNameFor("ComposeVersion") //todo
+    val Package = FqName(root) //todo
+    val StabilityInferred = internalFqNameFor("StabilityInferred") //todo
     fun makeComposableAnnotation(module: ModuleDescriptor): AnnotationDescriptor =
         object : AnnotationDescriptor {
             override val type: KotlinType
                 get() = module.findClassAcrossModuleDependencies(
-                    ClassId.topLevel(Composable)
+                    ClassId.topLevel(Fragment)
                 )!!.defaultType
             override val allValueArguments: Map<Name, ConstantValue<*>> get() = emptyMap()
             override val source: SourceElement get() = SourceElement.NO_SOURCE
@@ -77,18 +77,18 @@ fun KotlinType.makeComposable(module: ModuleDescriptor): KotlinType {
 }
 
 fun IrType.hasComposableAnnotation(): Boolean =
-    hasAnnotation(ComposeFqNames.Composable)
+    hasAnnotation(ComposeFqNames.Fragment)
 
 fun IrAnnotationContainer.hasComposableAnnotation(): Boolean =
-    hasAnnotation(ComposeFqNames.Composable)
+    hasAnnotation(ComposeFqNames.Fragment)
 
 fun KotlinType.hasComposableAnnotation(): Boolean =
-    !isSpecialType && annotations.findAnnotation(ComposeFqNames.Composable) != null
+    !isSpecialType && annotations.findAnnotation(ComposeFqNames.Fragment) != null
 fun Annotated.hasComposableAnnotation(): Boolean =
-    annotations.findAnnotation(ComposeFqNames.Composable) != null
+    annotations.findAnnotation(ComposeFqNames.Fragment) != null
 fun Annotated.hasNonRestartableComposableAnnotation(): Boolean =
     annotations.findAnnotation(ComposeFqNames.NonRestartableComposable) != null
-fun Annotated.hasReadonlyComposableAnnotation(): Boolean =
+fun Annotated.hasReadonlyFragmentAnnotation(): Boolean =
     annotations.findAnnotation(ComposeFqNames.ReadOnlyComposable) != null
 fun Annotated.hasExplicitGroupsAnnotation(): Boolean =
     annotations.findAnnotation(ComposeFqNames.ExplicitGroupsComposable) != null
@@ -98,4 +98,4 @@ fun Annotated.hasDisallowComposableCallsAnnotation(): Boolean =
 internal val KotlinType.isSpecialType: Boolean get() =
     this === NO_EXPECTED_TYPE || this === UNIT_EXPECTED_TYPE
 
-val AnnotationDescriptor.isComposableAnnotation: Boolean get() = fqName == ComposeFqNames.Composable
+val AnnotationDescriptor.isComposableAnnotation: Boolean get() = fqName == ComposeFqNames.Fragment

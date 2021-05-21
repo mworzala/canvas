@@ -265,7 +265,7 @@ class CreateDecoysTransformer(
             extensionReceiverParameter?.type?.hasComposable() == true
 
     private fun IrType.hasComposable(): Boolean {
-        if (hasAnnotation(ComposeFqNames.Composable)) {
+        if (hasAnnotation(ComposeFqNames.Fragment)) {
             return true
         }
 

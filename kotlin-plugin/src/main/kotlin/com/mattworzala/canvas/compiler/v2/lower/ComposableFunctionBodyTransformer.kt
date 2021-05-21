@@ -23,7 +23,7 @@ import com.mattworzala.canvas.compiler.v2.analysis.Stability
 import com.mattworzala.canvas.compiler.v2.analysis.knownStable
 import com.mattworzala.canvas.compiler.v2.analysis.knownUnstable
 import com.mattworzala.canvas.compiler.v2.hasExplicitGroupsAnnotation
-import com.mattworzala.canvas.compiler.v2.hasReadonlyComposableAnnotation
+import com.mattworzala.canvas.compiler.v2.hasReadonlyFragmentAnnotation
 import com.mattworzala.canvas.compiler.v2.hasNonRestartableComposableAnnotation
 import org.jetbrains.kotlin.backend.common.FileLoweringPass
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
@@ -766,13 +766,13 @@ class ComposableFunctionBodyTransformer(
 
     @OptIn(ObsoleteDescriptorBasedAPI::class)
     private fun IrFunction.shouldElideGroups(): Boolean {
-        return descriptor.hasReadonlyComposableAnnotation() ||
+        return descriptor.hasReadonlyFragmentAnnotation() ||
             descriptor.hasExplicitGroupsAnnotation()
     }
 
     @OptIn(ObsoleteDescriptorBasedAPI::class)
     private fun IrFunction.isReadonly(): Boolean {
-        return descriptor.hasReadonlyComposableAnnotation()
+        return descriptor.hasReadonlyFragmentAnnotation()
     }
 
     // At a high level, a non-restartable composable function
@@ -1473,7 +1473,7 @@ class ComposableFunctionBodyTransformer(
             original = null,
             index = 0,
             annotations = Annotations.EMPTY,
-            name = KtxNameConventions.COMPOSER_PARAMETER,
+            name = KtxNameConventions.FRAGMENT_PARAMETER,
             outType = composerIrClass.defaultType.makeNullable().toKotlinType(),
             declaresDefaultValue = false,
             isCrossinline = false,
@@ -1540,7 +1540,7 @@ class ComposableFunctionBodyTransformer(
             fn.parent = function
             val localIrBuilder = DeclarationIrBuilder(context, fn.symbol)
             fn.addValueParameter(
-                KtxNameConventions.COMPOSER_PARAMETER.identifier,
+                KtxNameConventions.FRAGMENT_PARAMETER.identifier,
                 composerIrClass.defaultType
                     .replaceArgumentsWithStarProjections()
                     .makeNullable()
@@ -2782,7 +2782,7 @@ class ComposableFunctionBodyTransformer(
 
                 val value = expression.symbol.owner
                 if (
-                    value is IrValueParameter && value.name == KtxNameConventions.COMPOSER_PARAMETER
+                    value is IrValueParameter && value.name == KtxNameConventions.FRAGMENT_PARAMETER
                 ) {
                     return irCurrentComposer()
                 } else {
@@ -3382,7 +3382,7 @@ class ComposableFunctionBodyTransformer(
                     val paramName = param.name.asString()
                     when {
                         !paramName.startsWith('$') -> realValueParamCount++
-                        paramName == KtxNameConventions.COMPOSER_PARAMETER.identifier ->
+                        paramName == KtxNameConventions.FRAGMENT_PARAMETER.identifier ->
                             composerParameter = param
                         paramName.startsWith(KtxNameConventions.DEFAULT_PARAMETER.identifier) ->
                             defaultParams += param

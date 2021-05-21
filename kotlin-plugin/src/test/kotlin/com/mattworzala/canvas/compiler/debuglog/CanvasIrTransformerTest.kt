@@ -1,6 +1,5 @@
 package com.mattworzala.canvas.compiler.debuglog
 
-import com.mattworzala.canvas.internal.currentFragmentContext
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import compile
@@ -14,15 +13,18 @@ import com.mattworzala.canvas.Fragment
 import com.mattworzala.canvas.FragmentContext
 import com.mattworzala.canvas.internal.currentFragmentContext
 import com.mattworzala.canvas.internal.drawFragment
+import com.mattworzala.canvas.internal.invokeFragment
 
 @Fragment
 fun TestFragment() {
-    println("HELLO WORLD")
+//    println("HELLO WORLD")
 }
 
 fun main() {
-    (TestFragment() as (FragmentContext) -> Unit)(FragmentContext())
-//    drawFragment(FragmentContext(), ::TestFragment)
+//    (TestFragment() as @Fragment (FragmentContext) -> Unit)(FragmentContext())
+    invokeFragment(FragmentContext()) {
+        TestFragment()
+    }
 }
 """
 

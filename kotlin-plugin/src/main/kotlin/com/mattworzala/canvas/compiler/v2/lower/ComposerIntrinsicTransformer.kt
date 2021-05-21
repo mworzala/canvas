@@ -47,7 +47,7 @@ class ComposerIntrinsicTransformer(
         if (decoysEnabled) {
             DecoyFqNames.CurrentComposerIntrinsic
         } else {
-            ComposeFqNames.CurrentComposerIntrinsic
+            ComposeFqNames.CurrentFragmentIntrinsic
         }
 
     override fun lower(module: IrModuleFragment) {

@@ -1,53 +1,15 @@
-/*
- * Copyright 2020 The Android Open Source Project
- * Copyright 2021 Canvas Contributors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+package com.mattworzala.canvas.compiler.fragment
 
-package com.mattworzala.canvas.compiler.v2
-
-import com.mattworzala.canvas.compiler.v2.analysis.ComposeWritableSlices
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.container.StorageComponentContainer
 import org.jetbrains.kotlin.container.useInstance
-import org.jetbrains.kotlin.descriptors.CallableDescriptor
-import org.jetbrains.kotlin.descriptors.ClassDescriptor
-import org.jetbrains.kotlin.descriptors.FunctionDescriptor
-import org.jetbrains.kotlin.descriptors.ModuleDescriptor
-import org.jetbrains.kotlin.descriptors.PropertyDescriptor
-import org.jetbrains.kotlin.descriptors.PropertyGetterDescriptor
-import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
+import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.impl.LocalVariableDescriptor
 import org.jetbrains.kotlin.extensions.StorageComponentContainerContributor
 import org.jetbrains.kotlin.js.resolve.diagnostics.findPsi
 import org.jetbrains.kotlin.platform.TargetPlatform
-import org.jetbrains.kotlin.platform.js.isJs
 import org.jetbrains.kotlin.platform.jvm.isJvm
-import org.jetbrains.kotlin.psi.KtAnnotatedExpression
-import org.jetbrains.kotlin.psi.KtAnnotationEntry
-import org.jetbrains.kotlin.psi.KtCallableReferenceExpression
-import org.jetbrains.kotlin.psi.KtClass
-import org.jetbrains.kotlin.psi.KtElement
-import org.jetbrains.kotlin.psi.KtExpression
-import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.KtFunction
-import org.jetbrains.kotlin.psi.KtFunctionLiteral
-import org.jetbrains.kotlin.psi.KtLambdaExpression
-import org.jetbrains.kotlin.psi.KtProperty
-import org.jetbrains.kotlin.psi.KtPropertyAccessor
-import org.jetbrains.kotlin.psi.KtPsiUtil
-import org.jetbrains.kotlin.psi.KtTryExpression
+import org.jetbrains.kotlin.psi.*
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.kotlin.resolve.calls.callUtil.getValueArgumentForExpression
@@ -58,10 +20,7 @@ import org.jetbrains.kotlin.resolve.calls.context.ResolutionContext
 import org.jetbrains.kotlin.resolve.calls.model.ArgumentMatch
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
 import org.jetbrains.kotlin.resolve.calls.model.VariableAsFunctionResolvedCall
-import org.jetbrains.kotlin.resolve.inline.InlineUtil.canBeInlineArgument
-import org.jetbrains.kotlin.resolve.inline.InlineUtil.isInline
-import org.jetbrains.kotlin.resolve.inline.InlineUtil.isInlineParameter
-import org.jetbrains.kotlin.resolve.inline.InlineUtil.isInlinedArgument
+import org.jetbrains.kotlin.resolve.inline.InlineUtil.*
 import org.jetbrains.kotlin.resolve.sam.getSingleAbstractMethodOrNull
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.TypeUtils
@@ -71,7 +30,7 @@ import org.jetbrains.kotlin.types.typeUtil.isAnyOrNullableAny
 import org.jetbrains.kotlin.types.upperIfFlexible
 import org.jetbrains.kotlin.util.OperatorNameConventions
 
-open class ComposableCallChecker :
+open class FragmentCallChecker :
     CallChecker,
     AdditionalTypeChecker,
     StorageComponentContainerContributor {
@@ -80,9 +39,8 @@ open class ComposableCallChecker :
         platform: TargetPlatform,
         moduleDescriptor: ModuleDescriptor
     ) {
-        if (platform.isJvm() || platform.isJs()) {
+        if (platform.isJvm())
             container.useInstance(this)
-        }
     }
 
     fun checkInlineLambdaCall(
@@ -93,36 +51,33 @@ open class ComposableCallChecker :
         if (resolvedCall !is VariableAsFunctionResolvedCall) return
         val descriptor = resolvedCall.variableCall.resultingDescriptor
         if (descriptor !is ValueParameterDescriptor) return
-        if (descriptor.type.hasDisallowComposableCallsAnnotation()) return
+        // if has disallow fragment annotation return
         val function = descriptor.containingDeclaration
         if (
             function is FunctionDescriptor &&
             function.isInline &&
-            function.isMarkedAsComposable()
+            function.isMarkedAsFragment()
         ) {
             val bindingContext = context.trace.bindingContext
             var node: PsiElement? = reportOn
-            loop@while (node != null) {
+            loop@ while (node != null) {
                 when (node) {
                     is KtLambdaExpression -> {
-                        val arg = getArgumentDescriptor(node.functionLiteral, bindingContext)
-                        if (arg?.type?.hasDisallowComposableCallsAnnotation() == true) {
-                            val parameterSrc = descriptor.findPsi()
-                            if (parameterSrc != null) {
-                                missingDisallowedComposableCallPropagation(
-                                    context,
-                                    parameterSrc,
-                                    descriptor,
-                                    arg
-                                )
-                            }
-                        }
+//                        val arg = getArgumentDescriptor(node.functionLiteral, bindingContext)
+//                        if (arg?.type?.hasDisallowComposableCallsAnnotation() == true) {
+//                            val parameterSrc = descriptor.findPsi()
+//                            if (parameterSrc != null) {
+//                                missingDisallowedComposableCallPropagation(
+//                                    context,
+//                                    parameterSrc,
+//                                    descriptor,
+//                                    arg
+//                                )
+//                            }
                     }
                     is KtFunction -> {
                         val fn = bindingContext[BindingContext.FUNCTION, node]
-                        if (fn == function) {
-                            return
-                        }
+                        if (fn == function) return
                     }
                 }
                 node = node.parent as? KtElement
@@ -130,18 +85,16 @@ open class ComposableCallChecker :
         }
     }
 
-    override fun check(
-        resolvedCall: ResolvedCall<*>,
-        reportOn: PsiElement,
-        context: CallCheckerContext
-    ) {
-        if (!resolvedCall.isComposableInvocation()) {
+    @OptIn(ExperimentalStdlibApi::class)
+    override fun check(resolvedCall: ResolvedCall<*>, reportOn: PsiElement, context: CallCheckerContext) {
+        if (!resolvedCall.isFragmentInvocation()) {
             checkInlineLambdaCall(resolvedCall, reportOn, context)
             return
         }
+
         val bindingContext = context.trace.bindingContext
         var node: PsiElement? = reportOn
-        loop@while (node != null) {
+        loop@ while (node != null) {
             when (node) {
                 is KtFunctionLiteral -> {
                     // keep going, as this is a "KtFunction", but we actually want the
@@ -153,40 +106,39 @@ open class ComposableCallChecker :
                         illegalCall(context, reportOn)
                         return
                     }
-                    val composable = descriptor.isComposableCallable(bindingContext)
-                    if (composable) return
+                    val fragment = descriptor.isFragmentCallable(bindingContext)
+                    if (fragment) return
                     val arg = getArgumentDescriptor(node.functionLiteral, bindingContext)
-                    if (arg?.type?.hasDisallowComposableCallsAnnotation() == true) {
-                        context.trace.record(
-                            ComposeWritableSlices.LAMBDA_CAPABLE_OF_COMPOSER_CAPTURE,
-                            descriptor,
-                            false
-                        )
-                        context.trace.report(
-                            CanvasErrors.CAPTURED_FRAGMENT_INVOCATION.on(
-                                reportOn,
-                                arg,
-                                arg.containingDeclaration
-                            )
-                        )
-                        return
-                    }
+//                    if (arg?.type?.hasDisallowComposableCallsAnnotation() == true) {
+//                        context.trace.record(
+//                            ComposeWritableSlices.LAMBDA_CAPABLE_OF_COMPOSER_CAPTURE,
+//                            descriptor,
+//                            false
+//                        )
+//                        context.trace.report(
+//                            CanvasErrors.CAPTURED_FRAGMENT_INVOCATION.on(
+//                                reportOn,
+//                                arg,
+//                                arg.containingDeclaration
+//                            )
+//                        )
+//                        return
+//                    }
                     val argTypeDescriptor = arg
                         ?.type
                         ?.constructor
                         ?.declarationDescriptor as? ClassDescriptor
                     if (argTypeDescriptor != null) {
                         val sam = getSingleAbstractMethodOrNull(argTypeDescriptor)
-                        if (sam != null && sam.hasComposableAnnotation()) {
+                        if (sam != null && sam.hasFragmentAnnotation())
                             return
-                        }
                     }
 
                     // TODO(lmr): in future, we should check for CALLS_IN_PLACE contract
                     val inlined = arg != null &&
-                        canBeInlineArgument(node.functionLiteral) &&
-                        isInline(arg.containingDeclaration) &&
-                        isInlineParameter(arg)
+                            canBeInlineArgument(node.functionLiteral) &&
+                            isInline(arg.containingDeclaration) &&
+                            isInlineParameter(arg)
                     if (!inlined) {
                         illegalCall(context, reportOn)
                         return
@@ -194,18 +146,14 @@ open class ComposableCallChecker :
                         // since the function is inlined, we continue going up the PSI tree
                         // until we find a composable context. We also mark this lambda
                         context.trace.record(
-                            ComposeWritableSlices.LAMBDA_CAPABLE_OF_COMPOSER_CAPTURE,
-                            descriptor,
-                            true
+                            FragmentWritableSlices.LAMBDA_CAPABLE_OF_COMPOSER_CAPTURE,
+                            descriptor, true
                         )
                     }
                 }
                 is KtTryExpression -> {
                     val tryKeyword = node.tryKeyword
-                    if (
-                        node.tryBlock.textRange.contains(reportOn.textRange) &&
-                        tryKeyword != null
-                    ) {
+                    if (node.tryBlock.textRange.contains(reportOn.textRange) && tryKeyword != null) {
                         context.trace.report(
                             CanvasErrors.ILLEGAL_TRY_CATCH_AROUND_FRAGMENT.on(tryKeyword)
                         )
@@ -213,23 +161,26 @@ open class ComposableCallChecker :
                 }
                 is KtFunction -> {
                     val descriptor = bindingContext[BindingContext.FUNCTION, node]
+                    println("CHECKING FUNCTION: " + descriptor.toString())
                     if (descriptor == null) {
+                        println("A")
                         illegalCall(context, reportOn)
                         return
                     }
-                    val composable = descriptor.isComposableCallable(bindingContext)
-                    if (!composable) {
+                    val fragment = descriptor.isFragmentCallable(bindingContext)
+                    if (!fragment) {
+                        println("B")
                         illegalCall(context, reportOn, node.nameIdentifier ?: node)
                     }
-                    if (descriptor.hasReadonlyFragmentAnnotation()) {
-                        // enforce that the original call was readonly
-                        if (!resolvedCall.isReadOnlyComposableInvocation()) {
-                            illegalCallMustBeReadonly(
-                                context,
-                                reportOn
-                            )
-                        }
-                    }
+//                    if (descriptor.hasReadonlyComposableAnnotation()) {
+//                    enforce that the original call was readonly
+//                        if (!resolvedCall.isReadOnlyComposableInvocation()) {
+//                            illegalCallMustBeReadonly(
+//                                context,
+//                                reportOn
+//                            )
+//                        }
+//                    }
                     return
                 }
                 is KtProperty -> {
@@ -239,44 +190,42 @@ open class ComposableCallChecker :
                     val descriptor = bindingContext[BindingContext.DECLARATION_TO_DESCRIPTOR, node]
                     if (
                         descriptor !is LocalVariableDescriptor &&
-                        node.annotationEntries.hasComposableAnnotation(bindingContext)
+                        node.annotationEntries.hasFragmentAnnotation(bindingContext)
                     ) {
-                        // composables shouldn't have initializers in the first place
+                        // fragments shouldn't have initializers in the first place
                         illegalCall(context, reportOn)
                         return
                     }
                 }
                 is KtPropertyAccessor -> {
                     val property = node.property
-                    val isComposable = node
-                        .annotationEntries.hasComposableAnnotation(bindingContext)
-                    if (!isComposable) {
+                    val isFragment = node.annotationEntries.hasFragmentAnnotation(bindingContext)
+                    if (!isFragment) {
                         illegalCall(context, reportOn, property.nameIdentifier ?: property)
                     }
-                    val descriptor = bindingContext[BindingContext.PROPERTY_ACCESSOR, node]
-                        ?: return
-                    if (descriptor.hasReadonlyFragmentAnnotation()) {
-                        // enforce that the original call was readonly
-                        if (!resolvedCall.isReadOnlyComposableInvocation()) {
-                            illegalCallMustBeReadonly(
-                                context,
-                                reportOn
-                            )
-                        }
-                    }
+                    val descriptor = bindingContext[BindingContext.PROPERTY_ACCESSOR, node] ?: return
+//                    if (descriptor.hasReadonlyComposableAnnotation()) {
+//                        // enforce that the original call was readonly
+//                        if (!resolvedCall.isReadOnlyComposableInvocation()) {
+//                            illegalCallMustBeReadonly(
+//                                context,
+//                                reportOn
+//                            )
+//                        }
+//                    }
                     return
                 }
                 is KtCallableReferenceExpression -> {
-                    illegalComposableFunctionReference(context, node)
+                    illegalFragmentFunctionReference(context, node)
                     return
                 }
                 is KtFile -> {
-                    // if we've made it this far, the call was made in a non-composable context.
+                    // if we've made it this far, the call was made in a non-fragment context.
                     illegalCall(context, reportOn)
                     return
                 }
                 is KtClass -> {
-                    // composable calls are never allowed in the initializers of a class
+                    // fragment calls are never allowed in the initializers of a class
                     illegalCall(context, reportOn)
                     return
                 }
@@ -319,7 +268,7 @@ open class ComposableCallChecker :
         context.trace.report(CanvasErrors.NONREADONLY_CALL_IN_READONLY_FRAGMENT.on(callEl))
     }
 
-    private fun illegalComposableFunctionReference(
+    private fun illegalFragmentFunctionReference(
         context: CallCheckerContext,
         refExpr: KtCallableReferenceExpression
     ) {
@@ -337,12 +286,11 @@ open class ComposableCallChecker :
         if (expectedType === TypeUtils.NO_EXPECTED_TYPE) return
         if (expectedType === TypeUtils.UNIT_EXPECTED_TYPE) return
         if (expectedType.isAnyOrNullableAny()) return
-        val expectedComposable = expectedType.hasComposableAnnotation()
+        val expectedFragment = expectedType.hasFragmentAnnotation()
         if (expression is KtLambdaExpression) {
-            val descriptor = bindingContext[BindingContext.FUNCTION, expression.functionLiteral]
-                ?: return
-            val isComposable = descriptor.isComposableCallable(bindingContext)
-            if (expectedComposable != isComposable) {
+            val descriptor = bindingContext[BindingContext.FUNCTION, expression.functionLiteral] ?: return
+            val isFragment = descriptor.isFragmentCallable(bindingContext)
+            if (expectedFragment != isFragment) {
                 val isInlineable = isInlinedArgument(
                     expression.functionLiteral,
                     c.trace.bindingContext,
@@ -350,14 +298,12 @@ open class ComposableCallChecker :
                 )
                 if (isInlineable) return
 
-                if (!expectedComposable && isComposable) {
+                if (!expectedFragment && isFragment) {
                     val inferred = c.trace.bindingContext[
-                        ComposeWritableSlices.INFERRED_COMPOSABLE_DESCRIPTOR,
-                        descriptor
+                            FragmentWritableSlices.INFERRED_COMPOSABLE_DESCRIPTOR,
+                            descriptor
                     ] == true
-                    if (inferred) {
-                        return
-                    }
+                    if (inferred) return
                 }
 
                 val reportOn =
@@ -387,9 +333,9 @@ open class ComposableCallChecker :
             if (expectedType.isMarkedNullable &&
                 expressionTypeWithSmartCast == nullableNothingType
             ) return
-            val isComposable = expressionType.hasComposableAnnotation()
+            val isFragment = expressionType.hasFragmentAnnotation()
 
-            if (expectedComposable != isComposable) {
+            if (expectedFragment != isFragment) {
                 val reportOn =
                     if (expression.parent is KtAnnotatedExpression)
                         expression.parent as KtExpression
@@ -402,38 +348,38 @@ open class ComposableCallChecker :
                     )
                 )
             }
-            return
         }
     }
 }
 
-fun ResolvedCall<*>.isReadOnlyComposableInvocation(): Boolean {
-    if (this is VariableAsFunctionResolvedCall) {
-        return false
-    }
-    val candidateDescriptor = candidateDescriptor
-    return when (candidateDescriptor) {
-        is ValueParameterDescriptor -> false
-        is LocalVariableDescriptor -> false
-        is PropertyDescriptor -> {
-            val isGetter = valueArguments.isEmpty()
-            val getter = candidateDescriptor.getter
-            if (isGetter && getter != null) {
-                getter.hasReadonlyFragmentAnnotation()
-            } else {
-                false
-            }
-        }
-        is PropertyGetterDescriptor -> candidateDescriptor.hasReadonlyFragmentAnnotation()
-        else -> candidateDescriptor.hasReadonlyFragmentAnnotation()
-    }
-}
+//todo read only, unused for now
+//fun ResolvedCall<*>.isReadOnlyFragmentInvocation(): Boolean {
+//    if (this is VariableAsFunctionResolvedCall) {
+//        return false
+//    }
+//    val candidateDescriptor = candidateDescriptor
+//    return when (candidateDescriptor) {
+//        is ValueParameterDescriptor -> false
+//        is LocalVariableDescriptor -> false
+//        is PropertyDescriptor -> {
+//            val isGetter = valueArguments.isEmpty()
+//            val getter = candidateDescriptor.getter
+//            if (isGetter && getter != null) {
+//                getter.hasReadonlyFragmentAnnotation()
+//            } else {
+//                false
+//            }
+//        }
+//        is PropertyGetterDescriptor -> candidateDescriptor.hasReadonlyFragmentAnnotation()
+//        else -> candidateDescriptor.hasReadonlyFragmentAnnotation()
+//    }
+//}
 
-fun ResolvedCall<*>.isComposableInvocation(): Boolean {
+fun ResolvedCall<*>.isFragmentInvocation(): Boolean {
     if (this is VariableAsFunctionResolvedCall) {
-        if (variableCall.candidateDescriptor.type.hasComposableAnnotation())
+        if (variableCall.candidateDescriptor.type.hasFragmentAnnotation())
             return true
-        if (functionCall.resultingDescriptor.hasComposableAnnotation()) return true
+        if (functionCall.resultingDescriptor.hasFragmentAnnotation()) return true
         return false
     }
     val candidateDescriptor = candidateDescriptor
@@ -441,7 +387,7 @@ fun ResolvedCall<*>.isComposableInvocation(): Boolean {
         if (candidateDescriptor.isOperator &&
             candidateDescriptor.name == OperatorNameConventions.INVOKE
         ) {
-            if (dispatchReceiver?.type?.hasComposableAnnotation() == true) {
+            if (dispatchReceiver?.type?.hasFragmentAnnotation() == true) {
                 return true
             }
         }
@@ -453,72 +399,77 @@ fun ResolvedCall<*>.isComposableInvocation(): Boolean {
             val isGetter = valueArguments.isEmpty()
             val getter = candidateDescriptor.getter
             if (isGetter && getter != null) {
-                getter.hasComposableAnnotation()
+                getter.hasFragmentAnnotation()
             } else {
                 false
             }
         }
-        is PropertyGetterDescriptor -> candidateDescriptor.hasComposableAnnotation()
-        else -> candidateDescriptor.hasComposableAnnotation()
+        is PropertyGetterDescriptor -> candidateDescriptor.hasFragmentAnnotation()
+        else -> candidateDescriptor.hasFragmentAnnotation()
     }
 }
 
-internal fun CallableDescriptor.isMarkedAsComposable(): Boolean {
+internal fun CallableDescriptor.isMarkedAsFragment(): Boolean {
     return when (this) {
-        is PropertyGetterDescriptor -> hasComposableAnnotation()
-        is ValueParameterDescriptor -> type.hasComposableAnnotation()
-        is LocalVariableDescriptor -> type.hasComposableAnnotation()
+        is PropertyGetterDescriptor -> hasFragmentAnnotation()
+        is ValueParameterDescriptor -> type.hasFragmentAnnotation()
+        is LocalVariableDescriptor -> type.hasFragmentAnnotation()
         is PropertyDescriptor -> false
-        else -> hasComposableAnnotation()
+        else -> hasFragmentAnnotation()
     }
 }
 
-// if you called this, it would need to be a composable call (composer, changed, etc.)
-fun CallableDescriptor.isComposableCallable(bindingContext: BindingContext): Boolean {
-    // if it's marked as composable then we're done
-    if (isMarkedAsComposable()) return true
+// if you called this, it would need to be a fragment call (fragment, changed, etc.)
+fun CallableDescriptor.isFragmentCallable(bindingContext: BindingContext): Boolean {
+    println("B.0")
+    // if it's marked as fragment then we're done
+    if (isMarkedAsFragment()) return true
+    println("B.01")
     if (
         this is FunctionDescriptor &&
-        bindingContext[ComposeWritableSlices.INFERRED_COMPOSABLE_DESCRIPTOR, this] == true
+        bindingContext[FragmentWritableSlices.INFERRED_COMPOSABLE_DESCRIPTOR, this] == true
     ) {
         // even though it's not marked, it is inferred as so by the type system (by being passed
-        // into a parameter marked as composable or a variable typed as one. This isn't much
+        // into a parameter marked as fragment or a variable typed as one. This isn't much
         // different than being marked explicitly.
         return true
     }
+    println("B.02")
     val functionLiteral = findPsi() as? KtFunctionLiteral
-        // if it isn't a function literal then we are out of things to try.
+    // if it isn't a function literal then we are out of things to try.
         ?: return false
+    println("B.1")
 
-    if (functionLiteral.annotationEntries.hasComposableAnnotation(bindingContext)) {
-        // in this case the function literal itself is being annotated as composable but the
+    if (functionLiteral.annotationEntries.hasFragmentAnnotation(bindingContext)) {
+        // in this case the function literal itself is being annotated as fragment but the
         // annotation isn't in the descriptor itself
         return true
     }
     val lambdaExpr = functionLiteral.parent as? KtLambdaExpression
     if (
         lambdaExpr != null &&
-        bindingContext[ComposeWritableSlices.INFERRED_COMPOSABLE_LITERAL, lambdaExpr] == true
+        bindingContext[FragmentWritableSlices.INFERRED_COMPOSABLE_LITERAL, lambdaExpr] == true
     ) {
-        // this lambda was marked as inferred to be composable
+        // this lambda was marked as inferred to be fragment
         return true
     }
     // TODO(lmr): i'm not sure that this is actually needed at this point, since this should have
     //  been covered by the TypeResolutionInterceptorExtension
     val arg = getArgumentDescriptor(functionLiteral, bindingContext) ?: return false
-    return arg.type.hasComposableAnnotation()
+    println("B.2 + ${arg.type.hasFragmentAnnotation()}")
+    return arg.type.hasFragmentAnnotation()
 }
 
-// the body of this function can have composable calls in it, even if it itself is not
-// composable (it might capture a composer from the parent)
-fun FunctionDescriptor.allowsComposableCalls(bindingContext: BindingContext): Boolean {
-    // if it's callable as a composable, then the answer is yes.
-    if (isComposableCallable(bindingContext)) return true
-    // otherwise, this is only true if it is a lambda which can be capable of composer
+// the body of this function can have fragment calls in it, even if it itself is not
+// fragment (it might capture a fragment from the parent)
+fun FunctionDescriptor.allowsFragmentCalls(bindingContext: BindingContext): Boolean {
+    // if it's callable as a fragment, then the answer is yes.
+    if (isFragmentCallable(bindingContext)) return true
+    // otherwise, this is only true if it is a lambda which can be capable of fragment
     // capture
     return bindingContext[
-        ComposeWritableSlices.LAMBDA_CAPABLE_OF_COMPOSER_CAPTURE,
-        this
+            FragmentWritableSlices.LAMBDA_CAPABLE_OF_COMPOSER_CAPTURE,
+            this
     ] == true
 }
 
@@ -533,10 +484,10 @@ internal fun getArgumentDescriptor(
     return mapping.valueParameter
 }
 
-fun List<KtAnnotationEntry>.hasComposableAnnotation(bindingContext: BindingContext): Boolean {
+fun List<KtAnnotationEntry>.hasFragmentAnnotation(bindingContext: BindingContext): Boolean {
     for (entry in this) {
         val descriptor = bindingContext.get(BindingContext.ANNOTATION, entry) ?: continue
-        if (descriptor.isComposableAnnotation) return true
+        if (descriptor.isFragmentAnnotation) return true
     }
     return false
 }

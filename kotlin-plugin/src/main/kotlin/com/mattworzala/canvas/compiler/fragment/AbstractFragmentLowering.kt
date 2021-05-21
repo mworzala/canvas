@@ -1,149 +1,46 @@
-/*
- * Copyright 2020 The Android Open Source Project
- * Copyright 2021 Canvas Contributors
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+package com.mattworzala.canvas.compiler.fragment
 
-package com.mattworzala.canvas.compiler.v2.lower
-
-import com.mattworzala.canvas.compiler.v2.ComposeFqNames
-import com.mattworzala.canvas.compiler.v2.KtxNameConventions
-import com.mattworzala.canvas.compiler.v2.allowsComposableCalls
-import com.mattworzala.canvas.compiler.v2.analysis.ComposeWritableSlices
-import com.mattworzala.canvas.compiler.v2.analysis.Stability
-import com.mattworzala.canvas.compiler.v2.analysis.StabilityInferencer
-import com.mattworzala.canvas.compiler.v2.analysis.knownStable
-import com.mattworzala.canvas.compiler.v2.irTrace
+import com.mattworzala.canvas.compiler.lower.InlineLambdaInfo
+import com.mattworzala.canvas.compiler.lower.IrInlineReferenceLocator
+import com.mattworzala.canvas.compiler.lower.ModuleLoweringPass
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.lower.DeclarationIrBuilder
 import org.jetbrains.kotlin.backend.jvm.lower.inlineclasses.InlineClassAbi
-import org.jetbrains.kotlin.builtins.extractParameterNameFromFunctionTypeArgument
+import org.jetbrains.kotlin.builtins.*
 import org.jetbrains.kotlin.builtins.functions.FunctionClassKind
 import org.jetbrains.kotlin.builtins.functions.FunctionInvokeDescriptor
-import org.jetbrains.kotlin.builtins.getFunctionalClassKind
-import org.jetbrains.kotlin.builtins.getReceiverTypeFromFunctionType
-import org.jetbrains.kotlin.builtins.getReturnTypeFromFunctionType
-import org.jetbrains.kotlin.builtins.getValueParameterTypesFromFunctionType
 import org.jetbrains.kotlin.cfg.index
-import org.jetbrains.kotlin.descriptors.CallableMemberDescriptor
-import org.jetbrains.kotlin.descriptors.ClassDescriptor
-import org.jetbrains.kotlin.descriptors.ClassKind
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
-import org.jetbrains.kotlin.descriptors.DeclarationDescriptorWithSource
-import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
-import org.jetbrains.kotlin.descriptors.FunctionDescriptor
-import org.jetbrains.kotlin.descriptors.Modality
-import org.jetbrains.kotlin.descriptors.ParameterDescriptor
-import org.jetbrains.kotlin.descriptors.SourceElement
-import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
-import org.jetbrains.kotlin.descriptors.ValueParameterDescriptor
+import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.descriptors.impl.AnonymousFunctionDescriptor
 import org.jetbrains.kotlin.descriptors.impl.ValueParameterDescriptorImpl
-import org.jetbrains.kotlin.fir.java.topLevelName
 import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
 import org.jetbrains.kotlin.ir.UNDEFINED_OFFSET
 import org.jetbrains.kotlin.ir.backend.js.utils.OperatorNames
 import org.jetbrains.kotlin.ir.builders.IrBlockBodyBuilder
 import org.jetbrains.kotlin.ir.builders.IrBuilderWithScope
-import org.jetbrains.kotlin.ir.builders.declarations.buildField
 import org.jetbrains.kotlin.ir.builders.irBlock
 import org.jetbrains.kotlin.ir.builders.irBlockBody
-import org.jetbrains.kotlin.ir.declarations.IrAnnotationContainer
-import org.jetbrains.kotlin.ir.declarations.IrClass
-import org.jetbrains.kotlin.ir.declarations.IrConstructor
-import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
-import org.jetbrains.kotlin.ir.declarations.IrField
-import org.jetbrains.kotlin.ir.declarations.IrFunction
-import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
-import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
-import org.jetbrains.kotlin.ir.declarations.IrTypeParameter
-import org.jetbrains.kotlin.ir.declarations.IrValueDeclaration
-import org.jetbrains.kotlin.ir.declarations.IrValueParameter
-import org.jetbrains.kotlin.ir.declarations.IrVariable
+import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.declarations.impl.IrFunctionImpl
 import org.jetbrains.kotlin.ir.declarations.impl.IrTypeParameterImpl
 import org.jetbrains.kotlin.ir.declarations.impl.IrValueParameterImpl
 import org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl
-import org.jetbrains.kotlin.ir.expressions.IrBranch
-import org.jetbrains.kotlin.ir.expressions.IrCall
-import org.jetbrains.kotlin.ir.expressions.IrConst
-import org.jetbrains.kotlin.ir.expressions.IrConstKind
-import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
-import org.jetbrains.kotlin.ir.expressions.IrExpression
-import org.jetbrains.kotlin.ir.expressions.IrFunctionExpression
-import org.jetbrains.kotlin.ir.expressions.IrGetEnumValue
-import org.jetbrains.kotlin.ir.expressions.IrGetObjectValue
-import org.jetbrains.kotlin.ir.expressions.IrGetValue
-import org.jetbrains.kotlin.ir.expressions.IrStatementOrigin
-import org.jetbrains.kotlin.ir.expressions.IrStatementOriginImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrBlockImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrBranchImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrCompositeImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrElseBranchImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrFunctionReferenceImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrGetFieldImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrGetValueImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrIfThenElseImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrReturnImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrSetValueImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrWhenImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrWhileLoopImpl
-import org.jetbrains.kotlin.ir.expressions.typeParametersCount
-import org.jetbrains.kotlin.ir.symbols.IrClassSymbol
-import org.jetbrains.kotlin.ir.symbols.IrConstructorSymbol
-import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
-import org.jetbrains.kotlin.ir.symbols.IrReturnTargetSymbol
-import org.jetbrains.kotlin.ir.symbols.IrSimpleFunctionSymbol
-import org.jetbrains.kotlin.ir.symbols.IrValueSymbol
+import org.jetbrains.kotlin.ir.expressions.*
+import org.jetbrains.kotlin.ir.expressions.impl.*
+import org.jetbrains.kotlin.ir.symbols.*
 import org.jetbrains.kotlin.ir.symbols.impl.IrSimpleFunctionSymbolImpl
 import org.jetbrains.kotlin.ir.symbols.impl.IrTypeParameterSymbolImpl
 import org.jetbrains.kotlin.ir.symbols.impl.IrValueParameterSymbolImpl
 import org.jetbrains.kotlin.ir.symbols.impl.IrVariableSymbolImpl
-import org.jetbrains.kotlin.ir.types.IrSimpleType
-import org.jetbrains.kotlin.ir.types.IrType
-import org.jetbrains.kotlin.ir.types.classOrNull
-import org.jetbrains.kotlin.ir.types.classifierOrFail
+import org.jetbrains.kotlin.ir.types.*
 import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeImpl
 import org.jetbrains.kotlin.ir.types.impl.IrStarProjectionImpl
-import org.jetbrains.kotlin.ir.types.isNullable
-import org.jetbrains.kotlin.ir.types.isPrimitiveType
-import org.jetbrains.kotlin.ir.types.isUnit
-import org.jetbrains.kotlin.ir.types.makeNullable
-import org.jetbrains.kotlin.ir.types.toKotlinType
-import org.jetbrains.kotlin.ir.types.typeWith
-import org.jetbrains.kotlin.ir.util.ConstantValueGenerator
-import org.jetbrains.kotlin.ir.util.DeepCopySymbolRemapper
-import org.jetbrains.kotlin.ir.util.SYNTHETIC_OFFSET
-import org.jetbrains.kotlin.ir.util.TypeTranslator
-import org.jetbrains.kotlin.ir.util.constructedClass
-import org.jetbrains.kotlin.ir.util.functions
-import org.jetbrains.kotlin.ir.util.getArguments
-import org.jetbrains.kotlin.ir.util.getPrimitiveArrayElementType
-import org.jetbrains.kotlin.ir.util.getPropertyGetter
-import org.jetbrains.kotlin.ir.util.isCrossinline
-import org.jetbrains.kotlin.ir.util.isFunction
-import org.jetbrains.kotlin.ir.util.isInlined
-import org.jetbrains.kotlin.ir.util.isNoinline
-import org.jetbrains.kotlin.ir.util.primaryConstructor
+import org.jetbrains.kotlin.ir.util.*
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
-import org.jetbrains.kotlin.platform.jvm.isJvm
 import org.jetbrains.kotlin.psi.psiUtil.endOffset
 import org.jetbrains.kotlin.psi.psiUtil.startOffset
 import org.jetbrains.kotlin.resolve.BindingTrace
@@ -153,22 +50,20 @@ import org.jetbrains.kotlin.resolve.source.PsiSourceElement
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.utils.DFS
 
-@Suppress("DEPRECATION")
-abstract class AbstractComposeLowering(
+
+//todo i want to remove the vast majority of this class
+abstract class AbstractFragmentLowering(
     val context: IrPluginContext,
     val symbolRemapper: DeepCopySymbolRemapper,
     val bindingTrace: BindingTrace
 ) : IrElementTransformerVoid(), ModuleLoweringPass {
-
-    var inlinedFunctions: Set<InlineLambdaInfo> = setOf()
+    var inlinedFunctions: Set<InlineLambdaInfo> = setOf();
 
     override fun lower(module: IrModuleFragment) {
-        // TODO: Might be worth caching this up in ComposeIrGenerationExtension, or maybe not
-        // because it might be better to keep the transforms independent.
         inlinedFunctions = IrInlineReferenceLocator.scan(context, module)
     }
 
-    @ObsoleteDescriptorBasedAPI
+    @OptIn(ObsoleteDescriptorBasedAPI::class)
     protected val typeTranslator =
         TypeTranslator(
             context.symbolTable,
@@ -184,28 +79,16 @@ abstract class AbstractComposeLowering(
 
     protected val builtIns = context.irBuiltIns
 
-    protected val stabilityInferencer = StabilityInferencer(context)
+    //todo stability stuff
 
-    fun stabilityOf(expr: IrExpression) = stabilityInferencer.stabilityOf(expr)
-    fun stabilityOf(type: IrType) = stabilityInferencer.stabilityOf(type)
-
-    fun IrAnnotationContainer.hasStableMarker(): Boolean = with(stabilityInferencer) {
-        hasStableMarker()
-    }
-
-    fun IrAnnotationContainer.hasStableAnnotation(): Boolean = with(stabilityInferencer) {
-        hasStableAnnotation()
-    }
-
-    private val _composerIrClass =
-        context.referenceClass(ComposeFqNames.Composer)?.owner
-            ?: error("Cannot find the Composer class in the classpath")
+    private val _fragmentIrClass = context.referenceClass(FragmentFqNames.FragmentContext)?.owner
+        ?: error("Cannot find the Fragment class in the classpath")
 
     // this ensures that composer always references up-to-date composer class symbol
     // otherwise, after remapping of symbols in DeepCopyTransformer, it results in duplicated
     // references
-    protected val composerIrClass: IrClass
-        get() = symbolRemapper.getReferencedClass(_composerIrClass.symbol).owner
+    protected val fragmentIrClass: IrClass
+        get() = symbolRemapper.getReferencedClass(_fragmentIrClass.symbol).owner
 
     fun referenceFunction(symbol: IrFunctionSymbol): IrFunctionSymbol {
         return symbolRemapper.getReferencedFunction(symbol)
@@ -233,15 +116,15 @@ abstract class AbstractComposeLowering(
     }
 
     fun getInternalFunction(name: String) = getTopLevelFunction(
-        ComposeFqNames.internalFqNameFor(name)
+        FragmentFqNames.internalFqNameFor(name)
     )
 
     fun getInternalProperty(name: String) = getTopLevelPropertyGetter(
-        ComposeFqNames.internalFqNameFor(name)
+        FragmentFqNames.internalFqNameFor(name)
     )
 
     fun getInternalClass(name: String) = getTopLevelClass(
-        ComposeFqNames.internalFqNameFor(name)
+        FragmentFqNames.internalFqNameFor(name)
     )
 
     fun getTopLevelPropertyGetter(fqName: FqName): IrFunctionSymbol {
@@ -319,8 +202,8 @@ abstract class AbstractComposeLowering(
         return this
     }
 
-    fun IrAnnotationContainer.hasComposableAnnotation(): Boolean {
-        return annotations.hasAnnotation(ComposeFqNames.Fragment)
+    fun IrAnnotationContainer.hasFragmentAnnotation(): Boolean {
+        return annotations.hasAnnotation(FragmentFqNames.Fragment)
     }
 
     @OptIn(ObsoleteDescriptorBasedAPI::class)
@@ -333,19 +216,19 @@ abstract class AbstractComposeLowering(
     }
 
     fun IrCall.isTransformedComposableCall(): Boolean {
-        return context.irTrace[ComposeWritableSlices.IS_COMPOSABLE_CALL, this] ?: false
+        return context.irTrace[FragmentWritableSlices.IS_COMPOSABLE_CALL, this] ?: false
     }
 
     fun IrCall.isSyntheticComposableCall(): Boolean {
-        return context.irTrace[ComposeWritableSlices.IS_SYNTHETIC_COMPOSABLE_CALL, this] == true
+        return context.irTrace[FragmentWritableSlices.IS_SYNTHETIC_COMPOSABLE_CALL, this] == true
     }
 
     fun IrCall.isComposableSingletonGetter(): Boolean {
-        return context.irTrace[ComposeWritableSlices.IS_COMPOSABLE_SINGLETON, this] == true
+        return context.irTrace[FragmentWritableSlices.IS_COMPOSABLE_SINGLETON, this] == true
     }
 
     fun IrClass.isComposableSingletonClass(): Boolean {
-        return context.irTrace[ComposeWritableSlices.IS_COMPOSABLE_SINGLETON_CLASS, this] == true
+        return context.irTrace[FragmentWritableSlices.IS_COMPOSABLE_SINGLETON_CLASS, this] == true
     }
 
     fun IrFunction.isInlinedLambda(): Boolean {
@@ -359,51 +242,17 @@ abstract class AbstractComposeLowering(
         get() =
             (constructor.declarationDescriptor as? ClassDescriptor)?.kind == ClassKind.ENUM_CLASS
 
-    fun Stability.irStableExpression(
-        resolve: (IrTypeParameter) -> IrExpression? = { null }
-    ): IrExpression? = when (this) {
-        is Stability.Combined -> {
-            val exprs = elements.mapNotNull { it.irStableExpression(resolve) }
-            when {
-                exprs.size != elements.size -> null
-                exprs.isEmpty() -> irConst(StabilityBits.STABLE.bitsForSlot(0))
-                exprs.size == 1 -> exprs.first()
-                else -> exprs.reduce { a, b ->
-                    irOr(a, b)
-                }
-            }
-        }
-
-        is Stability.Certain ->
-            if (stable)
-                irConst(StabilityBits.STABLE.bitsForSlot(0))
-            else
-                null
-
-        is Stability.Parameter -> resolve(parameter)
-        is Stability.Runtime -> {
-            val stableField = makeStabilityField().also { it.parent = declaration }
-            IrGetFieldImpl(
-                UNDEFINED_OFFSET,
-                UNDEFINED_OFFSET,
-                stableField.symbol,
-                stableField.type
-            )
-        }
-        is Stability.Unknown -> null
-    }
-
     fun KotlinType.isFinal(): Boolean = (constructor.declarationDescriptor as? ClassDescriptor)
         ?.modality == Modality.FINAL
 
     @OptIn(ObsoleteDescriptorBasedAPI::class)
-    fun FunctionDescriptor.allowsComposableCalls(): Boolean {
-        return allowsComposableCalls(context.bindingContext)
+    fun FunctionDescriptor.allowsFragmentCalls(): Boolean {
+        return allowsFragmentCalls(context.bindingContext)
     }
 
     @OptIn(ObsoleteDescriptorBasedAPI::class)
-    fun IrFunctionExpression.allowsComposableCalls(): Boolean =
-        function.descriptor.allowsComposableCalls(context.bindingContext)
+    fun IrFunctionExpression.allowsFragmentCalls(): Boolean =
+        function.descriptor.allowsFragmentCalls(context.bindingContext)
 
     @OptIn(ObsoleteDescriptorBasedAPI::class)
     private fun IrFunction.createParameterDeclarations() {
@@ -482,7 +331,7 @@ abstract class AbstractComposeLowering(
         ).also {
             it.parent = scope.getLocalDeclarationParent()
             it.createParameterDeclarations()
-            it.body = DeclarationIrBuilder(this@AbstractComposeLowering.context, symbol)
+            it.body = DeclarationIrBuilder(this@AbstractFragmentLowering.context, symbol)
                 .irBlockBody { body(it) }
         }
 
@@ -1045,18 +894,6 @@ abstract class AbstractComposeLowering(
         )
     }
 
-    fun makeStabilityField(): IrField {
-        return context.irFactory.buildField {
-            startOffset = SYNTHETIC_OFFSET
-            endOffset = SYNTHETIC_OFFSET
-            name = KtxNameConventions.STABILITY_FLAG
-            isStatic = context.platform.isJvm()
-            isFinal = true
-            type = context.irBuiltIns.intType
-            visibility = DescriptorVisibilities.PUBLIC
-        }
-    }
-
     @OptIn(ObsoleteDescriptorBasedAPI::class)
     fun IrExpression.isStatic(): Boolean {
         return when (this) {
@@ -1066,7 +903,7 @@ abstract class AbstractComposeLowering(
             is IrGetEnumValue -> true
             // Getting a companion object or top level object can be considered static if the
             // type of that object is Stable. (`Modifier` for instance is a common example)
-            is IrGetObjectValue -> symbol.owner.superTypes.any { stabilityOf(it).knownStable() }
+            is IrGetObjectValue -> false
             is IrConstructorCall -> isStatic()
             is IrCall -> isStatic()
             is IrGetValue -> {
@@ -1088,8 +925,7 @@ abstract class AbstractComposeLowering(
         // special case constructors of inline classes as static if their underlying
         // value is static.
         if (type.isInlined()) {
-            return stabilityOf(type.unboxInlineClass()).knownStable() &&
-                getValueArgument(0)?.isStatic() == true
+            return getValueArgument(0)?.isStatic() == true
         }
         return false
     }
@@ -1109,7 +945,6 @@ abstract class AbstractComposeLowering(
                 // if the property is a top level constant, then it is static.
                 if (prop.isConst) return true
 
-                val typeIsStable = stabilityOf(type).knownStable()
                 val dispatchReceiverIsStatic = dispatchReceiver?.isStatic() != false
                 val extensionReceiverIsStatic = extensionReceiver?.isStatic() != false
 
@@ -1118,25 +953,12 @@ abstract class AbstractComposeLowering(
                 // static if this is a top level property or the subject is also static.
                 if (!prop.isVar &&
                     prop.getter?.origin == IrDeclarationOrigin.DEFAULT_PROPERTY_ACCESSOR &&
-                    typeIsStable &&
                     dispatchReceiverIsStatic && extensionReceiverIsStatic
                 ) {
                     return true
                 }
 
-                val getterIsStable = prop.hasStableAnnotation() ||
-                    function.hasStableAnnotation()
-
-                if (
-                    getterIsStable &&
-                    typeIsStable &&
-                    dispatchReceiverIsStatic &&
-                    extensionReceiverIsStatic
-                ) {
-                    return true
-                }
-
-                false
+                return dispatchReceiverIsStatic && extensionReceiverIsStatic
             }
             is IrStatementOrigin.PLUS,
             is IrStatementOrigin.MUL,
@@ -1151,50 +973,9 @@ abstract class AbstractComposeLowering(
             is IrStatementOrigin.GTEQ,
             is IrStatementOrigin.LT,
             is IrStatementOrigin.LTEQ -> {
-                // special case mathematical operators that are in the stdlib. These are
-                // immutable operations so the overall result is static if the operands are
-                // also static
-                val isStableOperator = fqName.topLevelName() == "kotlin" ||
-                    function.hasStableAnnotation()
-
-                val typeIsStable = stabilityOf(type).knownStable()
-                if (!typeIsStable) return false
-
-                if (!isStableOperator) {
-                    return false
-                }
-
                 getArguments().all { it.second.isStatic() }
             }
             null -> {
-                if (fqName == ComposeFqNames.remember) {
-                    // if it is a call to remember with 0 input arguments, then we can
-                    // consider the value static if the result type of the lambda is stable
-                    val syntheticRememberParams = 1 + // composer param
-                        1 // changed param
-                    val expectedArgumentsCount = 1 + syntheticRememberParams // 1 for lambda
-                    if (
-                        valueArgumentsCount == expectedArgumentsCount &&
-                        stabilityOf(type).knownStable()
-                    ) {
-                        return true
-                    }
-                }
-                if (fqName == ComposeFqNames.composableLambda) {
-                    // calls to this function are generated by the compiler, and this
-                    // function behaves similar to a remember call in that the result will
-                    // _always_ be the same and the resulting type is _always_ stable, so
-                    // thus it is static.
-                    return true
-                }
-                // normal function call. If the function is marked as Stable and the result
-                // is Stable, then the static-ness of it is the static-ness of its arguments
-                val isStable = symbol.owner.hasStableAnnotation()
-                if (!isStable) return false
-
-                val typeIsStable = stabilityOf(type).knownStable()
-                if (!typeIsStable) return false
-
                 // getArguments includes the receivers!
                 getArguments().all { it.second.isStatic() }
             }
@@ -1230,8 +1011,8 @@ fun IrValueParameter.isComposerParam(): Boolean =
     (descriptor as? ValueParameterDescriptor)?.isComposerParam() ?: false
 
 fun ValueParameterDescriptor.isComposerParam(): Boolean =
-    name == KtxNameConventions.FRAGMENT_PARAMETER &&
-        type.constructor.declarationDescriptor?.fqNameSafe == ComposeFqNames.Composer
+    name == NameConventions.FRAGMENT_PARAMETER &&
+            type.constructor.declarationDescriptor?.fqNameSafe == FragmentFqNames.Fragment
 
 fun IrPluginContext.function(arity: Int): IrClassSymbol =
     referenceClass(FqName("kotlin.Function$arity"))!!

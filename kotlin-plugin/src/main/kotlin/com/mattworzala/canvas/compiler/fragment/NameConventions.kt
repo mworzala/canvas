@@ -1,8 +1,8 @@
-package com.mattworzala.canvas.compiler.v2
+package com.mattworzala.canvas.compiler.fragment
 
 import org.jetbrains.kotlin.name.Name
 
-object KtxNameConventions {
+object NameConventions {
     val FRAGMENT = Name.identifier("fragment")
     val FRAGMENT_PARAMETER = Name.identifier("\$fragment")
     val CHANGED_PARAMETER = Name.identifier("\$changed")

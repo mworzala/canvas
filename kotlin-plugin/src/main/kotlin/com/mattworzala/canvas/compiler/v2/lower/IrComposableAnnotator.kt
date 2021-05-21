@@ -18,6 +18,7 @@
 package com.mattworzala.canvas.compiler.v2.lower
 
 import com.mattworzala.canvas.compiler.v2.ComposeFqNames
+import com.mattworzala.canvas.compiler.v2.hasComposableAnnotation
 import com.mattworzala.canvas.compiler.v2.isMarkedAsComposable
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.descriptors.FunctionDescriptor
@@ -83,7 +84,7 @@ private class IrComposableAnnotator(val pluginContext: IrPluginContext) : IrElem
 
     private fun IrFunction.setComposableAnnotation() {
         if (hasComposableAnnotation()) return
-        val composableAnnotation = pluginContext.referenceClass(ComposeFqNames.Composable)!!.owner
+        val composableAnnotation = pluginContext.referenceClass(ComposeFqNames.Fragment)!!.owner
         annotations = annotations + listOf(
             IrConstructorCallImpl.fromSymbolOwner(
                 type = composableAnnotation.defaultType,
