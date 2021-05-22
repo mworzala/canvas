@@ -1,10 +1,12 @@
 package com.mattworzala.canvas.internal
 
 import com.mattworzala.canvas.*
+import com.mattworzala.canvas.ext.InventoryHandle
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.minestom.server.data.Data
 import net.minestom.server.data.DataImpl
+import net.minestom.server.inventory.Inventory
 import java.util.*
 import java.util.function.IntFunction
 
@@ -24,7 +26,14 @@ class SimpleRenderContext(
 
     override var rendered = false
 
+    override val container: Inventory
+        get() = parent.container
+
     /* Rendering */
+
+    override val inventory: InventoryHandle = object : InventoryHandle {
+        override val handle: Inventory get() = container
+    }
 
     private var _data: Data? = null
     override val data: Data
@@ -39,8 +48,8 @@ class SimpleRenderContext(
                 SimpleRenderContext(this, index, fragment)
             }) as RenderContext
 
-        this.data.dataHandler()
-        child.render(this.data)
+        data.dataHandler()
+        child.render(data)
     }
 
     /* Lifecycle */

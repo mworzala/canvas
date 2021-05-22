@@ -55,6 +55,9 @@ public class MainDemo {
                 case "wiki:composition":
                     canvas.render(WikiFragments.Composition);
                     break;
+                case "wiki:titled_fragment":
+                    canvas.render(WikiFragments.TitledFragment);
+                    break;
                 case "wiki:composition_with_data":
                     canvas.render(WikiFragments.CompositionWithData);
                     break;

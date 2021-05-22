@@ -43,13 +43,13 @@ object CanvasProvider {
 
     private fun handleInventoryClick(event: InventoryPreClickEvent) {
         canvases.values
-            .filter { it.inventory == event.inventory }
+            .filter { it.container == event.inventory }
             .forEach { it.handleInventoryClick(event) }
     }
 
     private fun handleInventoryClose(event: InventoryCloseEvent) {
         canvases.values
-            .filter { it.inventory == event.inventory }
+            .filter { it.container == event.inventory }
             .forEach { it.handleInventoryClose(event) }
     }
 

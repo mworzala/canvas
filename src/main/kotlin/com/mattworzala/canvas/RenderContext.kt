@@ -1,5 +1,6 @@
 package com.mattworzala.canvas
 
+import com.mattworzala.canvas.ext.InventoryHandle
 import com.mattworzala.canvas.internal.StateDispenser
 import net.minestom.server.data.Data
 import net.minestom.server.data.DataImpl
@@ -33,6 +34,7 @@ interface RenderContext : SlotHolder {
 
     /* Rendering */
 
+    val inventory: InventoryHandle
     val data: Data
 
     fun child(x: Int, y: Int, fragment: Fragment, data: Data = DataImpl(), dataHandler: Data.() -> Unit = {}) =

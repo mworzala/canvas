@@ -2,6 +2,7 @@
 
 package com.mattworzala.canvas
 
+import com.mattworzala.canvas.ext.InventoryHandle
 import net.kyori.adventure.text.Component
 import net.minestom.server.item.Material
 import java.util.concurrent.ThreadLocalRandom
@@ -25,6 +26,13 @@ val FirstListener = fragment(9, 1) {
 val Composition = fragment(9, 2) {
     put(FirstFragment, 0)
     put(FirstListener, 1 * width)
+}
+
+@JvmField
+val TitledFragment = fragment(width = 9, height = 1) {
+    inventory.title = Component.text("Titled Inventory")
+
+    item(0, Material.GLOWSTONE_DUST)
 }
 
 @JvmField

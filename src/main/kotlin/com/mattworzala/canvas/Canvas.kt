@@ -18,7 +18,7 @@ private const val CHEST_INVENTORY_WIDTH = 9
 class Canvas internal constructor(private val player: Player) : SlotHolder {
 
     /**
-     * Represents the underlying slots in the inventory. Will match the size of the current value of [inventory].
+     * Represents the underlying slots in the inventory. Will match the size of the current value of [container].
      *
      * Empty slots may be represented by null, or a [Slot] with an air item.
      */
@@ -28,7 +28,7 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
     /**
      * Internal inventory. Externally only used for event checking.
      */
-    var inventory: Inventory = Inventory(InventoryType.CHEST_1_ROW, "Unnamed Canvas")
+    override var container: Inventory = Inventory(InventoryType.CHEST_1_ROW, "Unnamed Canvas")
         private set
 
     /**
@@ -66,8 +66,8 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
 
         // Open inventory (if not open)
         isViewing = true
-        if (player.openInventory != inventory)
-            player.openInventory(inventory)
+        if (player.openInventory != container)
+            player.openInventory(container)
     }
 
     /* Slot Holder */
@@ -77,7 +77,7 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
 
     /** The height of the inventory */
     override val height: Int
-        get() = inventory.size / CHEST_INVENTORY_WIDTH
+        get() = container.size / CHEST_INVENTORY_WIDTH
 
     /**
      * Gets a [Slot] at an inventory [index]
@@ -116,7 +116,7 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
         while (!dirtySlots.isEmpty) {
             val slot = dirtySlots.dequeueInt()
             if (items[slot] == null) continue
-            inventory.setItemStack(slot, items[slot]!!.item)
+            container.setItemStack(slot, items[slot]!!.item)
         }
 
         // Call root update if fixedUpdate is set.
@@ -136,7 +136,7 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
 
     internal fun handleInventoryClick(event: InventoryPreClickEvent) {
         val index = event.slot
-        if (index >= inventory.size) return
+        if (index >= container.size) return
         event.isCancelled = true
 
         //todo handle click types
@@ -173,7 +173,7 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
     }
 
     /**
-     * Prepares the [inventory] to render a new fragment of the given [type].
+     * Prepares the [container] to render a new fragment of the given [type].
      * If the inventory is already the correct type, it will reuse it. Otherwise,
      * a new inventory will be created.
      *
@@ -181,14 +181,14 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
      */
     private fun prepareInventory(type: InventoryType) {
         dirtySlots.clear()
-        if (inventory.inventoryType == type) {
+        if (container.inventoryType == type) {
             // Reset data, reuse inventory
             items.fill(null)
             // Mark all slots dirty so they will be re sent during update
             (1 until items.size).forEach(dirtySlots::enqueue)
         } else {
             // New inventory
-            inventory = Inventory(type, "Unnamed Canvas")
+            container = Inventory(type, "Unnamed Canvas")
             items = arrayOfNulls(type.additionalSlot)
         }
     }

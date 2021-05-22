@@ -3,6 +3,7 @@ package com.mattworzala.canvas
 import com.mattworzala.canvas.extra.col
 import com.mattworzala.canvas.extra.row
 import net.minestom.server.event.inventory.InventoryPreClickEvent
+import net.minestom.server.inventory.Inventory
 import net.minestom.server.item.ItemStack
 import net.minestom.server.item.ItemStackBuilder
 import net.minestom.server.item.Material
@@ -63,6 +64,8 @@ interface SlotHolder {
     val width: Int
     val height: Int
     val size: Int get() = width * height
+
+    val container: Inventory
 
     fun getIndex(x: Int, y: Int) = x + (y * width)
 
