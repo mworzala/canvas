@@ -46,6 +46,21 @@ public class MainDemo {
             Canvas canvas = CanvasProvider.canvas(event.getPlayer());
 
             switch (event.getMessage().toLowerCase()) {
+                case "wiki:first_fragment":
+                    canvas.render(WikiFragments.FirstFragment);
+                    break;
+                case "wiki:first_listener":
+                    canvas.render(WikiFragments.FirstListener);
+                    break;
+                case "wiki:composition":
+                    canvas.render(WikiFragments.Composition);
+                    break;
+                case "wiki:composition_with_data":
+                    canvas.render(WikiFragments.CompositionWithData);
+                    break;
+                case "wiki:composition_with_state":
+                    canvas.render(WikiFragments.CompositionWithState);
+                    break;
                 case "basic":
                     canvas.render(BasicTest.BasicItems, new DataImpl());
                     break;

@@ -49,6 +49,7 @@ val SingleItemFromProps = fragment {
 @JvmField
 val BasicCounter = fragment(3) {
     var counter by useState(1)
+    item(0, Material.GLOWSTONE_DUST)
 
     // Decrement
     this[0].apply {

@@ -40,6 +40,15 @@ interface RenderContext : SlotHolder {
 
     fun child(index: Int, fragment: Fragment, data: Data = DataImpl(), dataHandler: Data.() -> Unit = {})
 
+    /* State safety */
+
+    //todo docs, should have an unsafe mutable property on the delegate which errors if you use it outside of a mutable block.
+    fun <T> mutate(mutator: () -> T?): T? {
+        val result = mutator()
+        render()
+        return result
+    }
+
     /* Lifecycle */
 
     fun render(data: Data? = null)
