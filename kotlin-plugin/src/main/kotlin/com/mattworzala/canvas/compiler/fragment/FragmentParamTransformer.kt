@@ -84,6 +84,7 @@ class FragmentParamTransformer(
     }
 
     fun IrCall.withFragmentParamIfNeeded(fragmentParam: IrValueParameter): IrCall {
+        println("ADDING FRAGMENT PARAM TO CALL: " + fragmentParam.dump())
         val isFragmentLambda = isFragmentLambdaInvoke()
 
         if (!symbol.owner.hasFragmentAnnotation() && !isFragmentLambda)
@@ -103,6 +104,8 @@ class FragmentParamTransformer(
                 return this
         }
 
+        println("REPLACING CALL")
+
         return IrCallImpl(
             startOffset,
             endOffset,
@@ -115,7 +118,7 @@ class FragmentParamTransformer(
         ).also {
             it.copyAttributes(this)
             context.irTrace.record(
-                FragmentWritableSlices.IS_COMPOSABLE_CALL,
+                FragmentWritableSlices.IS_FRAGMENT_CALL,
                 it, true
             )
             it.copyTypeArgumentsFrom(this)
@@ -123,6 +126,7 @@ class FragmentParamTransformer(
             it.extensionReceiver = extensionReceiver
             //todo this is creating that missing arguments bitmap, need to figure out the rest of this block
             val argumentsMissing = mutableListOf<Boolean>()
+            println(valueArgumentsCount)
             for (i in 0 until valueArgumentsCount) {
                 val arg = getValueArgument(i)
                 argumentsMissing.add(arg == null)
@@ -147,7 +151,10 @@ class FragmentParamTransformer(
             // $changed[n]
             for (i in 0 until changedParamCount(realValueParams, ownerFn.thisParamCount)) {
                 if (argIndex < ownerFn.valueParameters.size) {
-                    it.putValueArgument(argIndex++, irConst(0))
+                    it.putValueArgument(
+                        argIndex++,
+                        irConst(0)
+                    )
                 } else {
                     error("1. expected value parameter count to be higher: ${this.dumpSrc()}")
                 }
@@ -222,20 +229,24 @@ class FragmentParamTransformer(
 
     // Transform `@Fragment fun foo(params): RetType` into `fun foo(params, $fragment: Fragment): RetType`
     private fun IrFunction.withFragmentParamIfNeeded(): IrFunction {
+        println("WITH PARAM IF NEEDED ${this.dump()}")
         // don't transform functions that themselves were produced by this function. (ie, if we
         // call this with a function that has the synthetic composer parameter, we don't want to
         // transform it further).
         if (transformedFunctionSet.contains(this)) return this
+        println("WPIF - 0")
 
         // some functions were transformed during previous compilations or in other modules
         if (this.externallyTransformed()) {
             return this
         }
+        println("WPIF - 1")
 
         // if not a composable fn, nothing to do
         if (!this.hasFragmentAnnotation()) {
             return this
         }
+        println("WPIF - 2")
 
         // if this function is an inlined lambda passed as an argument to an inline function (and
         // is NOT a composable lambda), then we don't want to transform it. Ideally, this
@@ -245,10 +256,12 @@ class FragmentParamTransformer(
         // probably fix the annotation checker instead.
         // TODO is this still an issue? add a test :)
         if (isNonFragmentInlinedLambda()) return this
+        println("WPIF - 3")
 
         // we don't bother transforming expect functions. They exist only for type resolution and
         // don't need to be transformed to have a composer parameter
         if (isExpect) return this
+        println("WPIF - 4")
 
         // cache the transformed function with composer parameter
         return transformedFunctions[this] ?: copyWithFragmentParam()
@@ -362,6 +375,7 @@ class FragmentParamTransformer(
 
     @OptIn(ObsoleteDescriptorBasedAPI::class)
     private fun IrFunction.copyWithFragmentParam(): IrSimpleFunction {
+        println("COPYING FUNCTION WITH FRAGMENT PARAM " + this.dump())
         assert(explicitParameters.lastOrNull()?.name != NameConventions.FRAGMENT_PARAMETER) {
             "Attempted to add fragment param to $this, but it has already been added."
         }
@@ -449,6 +463,7 @@ class FragmentParamTransformer(
                 }
             }
 
+            println("TRANSFORMING CHILDREN : ${fn.dump()}")
             fn.transformChildrenVoid(object : IrElementTransformerVoid() {
                 var isNestedScope = false
 
@@ -495,6 +510,7 @@ class FragmentParamTransformer(
                 }
 
                 override fun visitCall(expression: IrCall): IrExpression {
+                    println("VISITING CALL " + expression.dump())
                     val expr = if (!isNestedScope) {
                         expression.withFragmentParamIfNeeded(fragmentParam)
                     } else expression
@@ -550,5 +566,5 @@ class FragmentParamTransformer(
      * todo this should be removable since I am ignoring klibs
      */
     private fun IrFunction.externallyTransformed(): Boolean =
-        currentModule?.files?.contains(fileOrNull) != true
+        /*decoysEnabled*/false && currentModule?.files?.contains(fileOrNull) != true
 }

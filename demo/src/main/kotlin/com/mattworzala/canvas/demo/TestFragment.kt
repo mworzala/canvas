@@ -1,6 +1,17 @@
 package com.mattworzala.canvas.demo
 
-@com.mattworzala.canvas.Fragment
+import com.mattworzala.canvas.Fragment
+import com.mattworzala.canvas.FragmentContext
+import com.mattworzala.canvas.internal.currentFragmentContext
+import com.mattworzala.canvas.internal.invokeFragment
+
+@Fragment
 fun TestFragment() {
-    println("HELLO WORLD ${com.mattworzala.canvas.internal.currentFragmentContext}")
+    println("HELLO WORLD $currentFragmentContext")
+}
+
+fun main() {
+    invokeFragment(FragmentContext()) {
+        TestFragment()
+    }
 }

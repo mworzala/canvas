@@ -3,6 +3,7 @@ plugins {
     id("java")
     id("java-library")
     id("maven-publish")
+    id("com.mattworzala.canvas")
 }
 
 allprojects {
@@ -30,7 +31,7 @@ dependencies {
     compileOnly("com.github.Minestom:Minestom:5d7a49c009")
 
 //    testImplementation(kotlin("reflect"))
-//    testImplementation("com.github.Minestom:Minestom:5d7a49c009")
+    testImplementation("com.github.Minestom:Minestom:5d7a49c009")
 }
 
 java {

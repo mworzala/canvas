@@ -1,13 +1,9 @@
 package com.mattworzala.canvas.compiler
 
 import com.google.auto.service.AutoService
-import com.mattworzala.canvas.compiler.debuglog.DebugLogIrGenerationExtension
 import com.mattworzala.canvas.compiler.fragment.FragmentCallChecker
 import com.mattworzala.canvas.compiler.fragment.FragmentIrGenerationExtension
-import com.mattworzala.canvas.compiler.ir.CanvasIrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
-import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
-import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.com.intellij.mock.MockProject
 import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar
 import org.jetbrains.kotlin.config.CompilerConfiguration

@@ -35,5 +35,7 @@ annotation class ExplicitGroupsFragment
 annotation class NonRestartableFragment
 
 class FragmentContext {
-
+    fun sayHello() {
+        println("I AM FRAGMENT CONTEXT!!!!")
+    }
 }

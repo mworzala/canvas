@@ -25,6 +25,7 @@ object FragmentFqNames {
 
     val Fragment = fqNameFor("Fragment")
     val FragmentContext = fqNameFor("FragmentContext")
+    val ContextIntrinsic = internalFqNameFor("<get-currentFragmentContext>")
 
     fun makeFragmentAnnotation(module: ModuleDescriptor): AnnotationDescriptor =
         object : AnnotationDescriptor {

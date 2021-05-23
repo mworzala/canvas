@@ -16,7 +16,7 @@ class FragmentSymbolRemapper : DeepCopySymbolRemapper(
 )
 
 //todo what does this actually do??
-object WrappedComposableDescriptorPatcher : IrElementVisitorVoid {
+object WrappedFragmentDescriptorPatcher : IrElementVisitorVoid {
     override fun visitElement(element: IrElement) {
         element.acceptChildrenVoid(this)
     }

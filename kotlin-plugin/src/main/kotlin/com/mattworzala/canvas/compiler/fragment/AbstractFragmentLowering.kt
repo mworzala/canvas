@@ -216,19 +216,19 @@ abstract class AbstractFragmentLowering(
     }
 
     fun IrCall.isTransformedComposableCall(): Boolean {
-        return context.irTrace[FragmentWritableSlices.IS_COMPOSABLE_CALL, this] ?: false
+        return context.irTrace[FragmentWritableSlices.IS_FRAGMENT_CALL, this] ?: false
     }
 
     fun IrCall.isSyntheticComposableCall(): Boolean {
-        return context.irTrace[FragmentWritableSlices.IS_SYNTHETIC_COMPOSABLE_CALL, this] == true
+        return context.irTrace[FragmentWritableSlices.IS_SYNTHETIC_FRAGMENT_CALL, this] == true
     }
 
     fun IrCall.isComposableSingletonGetter(): Boolean {
-        return context.irTrace[FragmentWritableSlices.IS_COMPOSABLE_SINGLETON, this] == true
+        return context.irTrace[FragmentWritableSlices.IS_FRAGMENT_SINGLETON, this] == true
     }
 
     fun IrClass.isComposableSingletonClass(): Boolean {
-        return context.irTrace[FragmentWritableSlices.IS_COMPOSABLE_SINGLETON_CLASS, this] == true
+        return context.irTrace[FragmentWritableSlices.IS_FRAGMENT_SINGLETON_CLASS, this] == true
     }
 
     fun IrFunction.isInlinedLambda(): Boolean {

@@ -146,7 +146,7 @@ open class FragmentCallChecker :
                         // since the function is inlined, we continue going up the PSI tree
                         // until we find a composable context. We also mark this lambda
                         context.trace.record(
-                            FragmentWritableSlices.LAMBDA_CAPABLE_OF_COMPOSER_CAPTURE,
+                            FragmentWritableSlices.LAMBDA_CAPABLE_OF_FRAGMENT_CONTEXT_CAPTURE,
                             descriptor, true
                         )
                     }
@@ -300,7 +300,7 @@ open class FragmentCallChecker :
 
                 if (!expectedFragment && isFragment) {
                     val inferred = c.trace.bindingContext[
-                            FragmentWritableSlices.INFERRED_COMPOSABLE_DESCRIPTOR,
+                            FragmentWritableSlices.INFERRED_FRAGMENT_DESCRIPTOR,
                             descriptor
                     ] == true
                     if (inferred) return
@@ -427,7 +427,7 @@ fun CallableDescriptor.isFragmentCallable(bindingContext: BindingContext): Boole
     println("B.01")
     if (
         this is FunctionDescriptor &&
-        bindingContext[FragmentWritableSlices.INFERRED_COMPOSABLE_DESCRIPTOR, this] == true
+        bindingContext[FragmentWritableSlices.INFERRED_FRAGMENT_DESCRIPTOR, this] == true
     ) {
         // even though it's not marked, it is inferred as so by the type system (by being passed
         // into a parameter marked as fragment or a variable typed as one. This isn't much
@@ -448,7 +448,7 @@ fun CallableDescriptor.isFragmentCallable(bindingContext: BindingContext): Boole
     val lambdaExpr = functionLiteral.parent as? KtLambdaExpression
     if (
         lambdaExpr != null &&
-        bindingContext[FragmentWritableSlices.INFERRED_COMPOSABLE_LITERAL, lambdaExpr] == true
+        bindingContext[FragmentWritableSlices.INFERRED_FRAGMENT_LITERAL, lambdaExpr] == true
     ) {
         // this lambda was marked as inferred to be fragment
         return true
@@ -468,7 +468,7 @@ fun FunctionDescriptor.allowsFragmentCalls(bindingContext: BindingContext): Bool
     // otherwise, this is only true if it is a lambda which can be capable of fragment
     // capture
     return bindingContext[
-            FragmentWritableSlices.LAMBDA_CAPABLE_OF_COMPOSER_CAPTURE,
+            FragmentWritableSlices.LAMBDA_CAPABLE_OF_FRAGMENT_CONTEXT_CAPTURE,
             this
     ] == true
 }

@@ -12,20 +12,40 @@ const val testCode = """
 import com.mattworzala.canvas.Fragment
 import com.mattworzala.canvas.FragmentContext
 import com.mattworzala.canvas.internal.currentFragmentContext
-import com.mattworzala.canvas.internal.drawFragment
 import com.mattworzala.canvas.internal.invokeFragment
+
+//val TestA: FragmentContext
+//    @Fragment get() = throw IllegalStateException("Implemented as intrinsic")
+
+@Fragment
+fun SayHello(name: String) {
+    println("Hello, " + name)
+}
 
 @Fragment
 fun TestFragment() {
-//    println("HELLO WORLD")
+    SayHello("world")
+    SayHello("Michael")
+//    val a = TestA
+    println("HELLO WORLD ")
+    val b = currentFragmentContext
+    println(b)
+    currentFragmentContext.sayHello()
 }
 
 fun main() {
 //    (TestFragment() as @Fragment (FragmentContext) -> Unit)(FragmentContext())
+//      (TestFragment as Function2<FragmentContext, Int, Unit>)(FragmentContext(), 1)
     invokeFragment(FragmentContext()) {
         TestFragment()
     }
 }
+
+//fun invokeFragment(context: FragmentContext, composable: @Fragment () -> Unit = {}) {
+//    @Suppress("UNCHECKED_CAST")
+//    val realFn = composable as Function2<FragmentContext, Int, Unit>
+//    realFn(context, 1)
+//}
 """
 
 class CanvasIrTransformerTest {

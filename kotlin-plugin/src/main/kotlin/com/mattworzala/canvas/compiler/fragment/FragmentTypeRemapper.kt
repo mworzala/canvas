@@ -67,9 +67,13 @@ class FragmentTypeRemapper(
     }
 
     override fun remapType(type: IrType): IrType {
+        println("REMAPPING TYPE " + type.dumpKotlinLike())
         if (type !is IrSimpleType) return type
+        println("RT.0")
         if (!type.isFunction()) return underlyingRemapType(type)
+        println("RT.1")
         if (!type.isFragment()) return underlyingRemapType(type)
+        println("RT.2")
 
         val oldIrArguments = type.arguments
         val realParams = oldIrArguments.size - 1
@@ -153,7 +157,7 @@ class DeepCopyIrTreeWithSymbolsPreservingMetadata(
 
     override fun visitConstructor(declaration: IrConstructor): IrConstructor {
         return super.visitConstructor(declaration).also {
-            WrappedComposableDescriptorPatcher.visitConstructor(it)
+            WrappedFragmentDescriptorPatcher.visitConstructor(it)
 
             it.copyMetadataFrom(declaration)
         }
@@ -167,7 +171,7 @@ class DeepCopyIrTreeWithSymbolsPreservingMetadata(
             symbolRemapper.visitSimpleFunction(declaration)
         }
         return super.visitSimpleFunction(declaration).also {
-            WrappedComposableDescriptorPatcher.visitSimpleFunction(it)
+            WrappedFragmentDescriptorPatcher.visitSimpleFunction(it)
 
             it.correspondingPropertySymbol = declaration.correspondingPropertySymbol
             it.copyMetadataFrom(declaration)
@@ -200,7 +204,7 @@ class DeepCopyIrTreeWithSymbolsPreservingMetadata(
             (context as IrPluginContextImpl).linker.getDeclaration(expression.symbol)
         val ownerFn = expression.symbol.owner as? IrConstructor
         // If we are calling an external constructor, we want to "remap" the types of its signature
-        // as well, since if it they are @Composable it will have its unmodified signature. These
+        // as well, since if it they are @Fragment it will have its unmodified signature. These
         // types won't be traversed by default by the DeepCopyIrTreeWithSymbols so we have to
         // do it ourself here.
         if (
@@ -230,14 +234,14 @@ class DeepCopyIrTreeWithSymbolsPreservingMetadata(
         return super.visitConstructorCall(expression)
     }
 
-    private fun IrFunction.hasComposableArguments(): Boolean {
+    private fun IrFunction.hasFragmentArguments(): Boolean {
         if (
-            dispatchReceiverParameter?.type?.isComposable() == true ||
-            extensionReceiverParameter?.type?.isComposable() == true
+            dispatchReceiverParameter?.type?.isFragment() == true ||
+            extensionReceiverParameter?.type?.isFragment() == true
         ) return true
 
         for (param in valueParameters) {
-            if (param.type.isComposable()) return true
+            if (param.type.isFragment()) return true
         }
         return false
     }
@@ -248,9 +252,9 @@ class DeepCopyIrTreeWithSymbolsPreservingMetadata(
         @Suppress("DEPRECATION")
         val containingClass = expression.symbol.descriptor.containingDeclaration as? ClassDescriptor
 
-        // Any virtual calls on composable functions we want to make sure we update the call to
+        // Any virtual calls on fragment functions we want to make sure we update the call to
         // the right function base class (of n+1 arity). The most often virtual call to make on
-        // a function instance is `invoke`, which we *already* do in the ComposeParamTransformer.
+        // a function instance is `invoke`, which we *already* do in the FragmentParamTransformer.
         // There are others that can happen though as well, such as `equals` and `hashCode`. In this
         // case, we want to update those calls as well.
         if (
@@ -258,7 +262,7 @@ class DeepCopyIrTreeWithSymbolsPreservingMetadata(
             ownerFn.origin == IrDeclarationOrigin.FAKE_OVERRIDE &&
             containingClass != null &&
             containingClass.defaultType.isFunctionType &&
-            expression.dispatchReceiver?.type?.isComposable() == true
+            expression.dispatchReceiver?.type?.isFragment() == true
         ) {
             val typeArguments = containingClass.defaultType.arguments
             val newFnClass = context.function(typeArguments.size).owner
@@ -288,7 +292,7 @@ class DeepCopyIrTreeWithSymbolsPreservingMetadata(
         }
 
         // If we are calling an external function, we want to "remap" the types of its signature
-        // as well, since if it is @Composable it will have its unmodified signature. These
+        // as well, since if it is @Fragment it will have its unmodified signature. These
         // functions won't be traversed by default by the DeepCopyIrTreeWithSymbols so we have to
         // do it ourself here.
         //
@@ -327,7 +331,7 @@ class DeepCopyIrTreeWithSymbolsPreservingMetadata(
 
         if (
             ownerFn != null &&
-            ownerFn.hasComposableArguments()
+            ownerFn.hasFragmentArguments()
         ) {
             val newFn = visitSimpleFunction(ownerFn).also {
                 it.overriddenSymbols = ownerFn.overriddenSymbols.map { override ->
@@ -411,7 +415,7 @@ class DeepCopyIrTreeWithSymbolsPreservingMetadata(
         }
     }
 
-    private fun IrType.isComposable(): Boolean {
+    private fun IrType.isFragment(): Boolean {
         return annotations.hasAnnotation(FragmentFqNames.Fragment)
     }
 

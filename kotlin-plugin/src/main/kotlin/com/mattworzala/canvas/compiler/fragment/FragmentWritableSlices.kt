@@ -9,18 +9,18 @@ import org.jetbrains.kotlin.util.slicedMap.RewritePolicy
 import org.jetbrains.kotlin.util.slicedMap.WritableSlice
 
 object FragmentWritableSlices {
-    val INFERRED_COMPOSABLE_DESCRIPTOR: WritableSlice<FunctionDescriptor, Boolean> =
+    val INFERRED_FRAGMENT_DESCRIPTOR: WritableSlice<FunctionDescriptor, Boolean> =
         BasicWritableSlice(RewritePolicy.DO_NOTHING)
-    val LAMBDA_CAPABLE_OF_COMPOSER_CAPTURE: WritableSlice<FunctionDescriptor, Boolean> =
+    val LAMBDA_CAPABLE_OF_FRAGMENT_CONTEXT_CAPTURE: WritableSlice<FunctionDescriptor, Boolean> =
         BasicWritableSlice(RewritePolicy.DO_NOTHING)
-    val INFERRED_COMPOSABLE_LITERAL: WritableSlice<KtLambdaExpression, Boolean> =
+    val INFERRED_FRAGMENT_LITERAL: WritableSlice<KtLambdaExpression, Boolean> =
         BasicWritableSlice(RewritePolicy.DO_NOTHING)
-    val IS_COMPOSABLE_CALL: WritableSlice<IrAttributeContainer, Boolean> =
+    val IS_FRAGMENT_CALL: WritableSlice<IrAttributeContainer, Boolean> =
         BasicWritableSlice(RewritePolicy.DO_NOTHING)
-    val IS_SYNTHETIC_COMPOSABLE_CALL: WritableSlice<IrFunctionAccessExpression, Boolean> =
+    val IS_SYNTHETIC_FRAGMENT_CALL: WritableSlice<IrFunctionAccessExpression, Boolean> =
         BasicWritableSlice(RewritePolicy.DO_NOTHING)
-    val IS_COMPOSABLE_SINGLETON: WritableSlice<IrAttributeContainer, Boolean> =
+    val IS_FRAGMENT_SINGLETON: WritableSlice<IrAttributeContainer, Boolean> =
         BasicWritableSlice(RewritePolicy.DO_NOTHING)
-    val IS_COMPOSABLE_SINGLETON_CLASS: WritableSlice<IrAttributeContainer, Boolean> =
+    val IS_FRAGMENT_SINGLETON_CLASS: WritableSlice<IrAttributeContainer, Boolean> =
         BasicWritableSlice(RewritePolicy.DO_NOTHING)
 }
