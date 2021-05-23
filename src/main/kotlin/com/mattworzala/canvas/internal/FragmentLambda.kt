@@ -2,6 +2,10 @@ package com.mattworzala.canvas.internal
 
 import com.mattworzala.canvas.FragmentContext
 
+/**
+ * At the moment this class can be ignored.
+ */
+
 private const val SLOTS_PER_INT = 10
 private const val BITS_PER_SLOT = 3
 
