@@ -3,8 +3,8 @@ package com.mattworzala.canvas.compiler.fragment
 import org.jetbrains.kotlin.name.Name
 
 object NameConventions {
-    val FRAGMENT = Name.identifier("fragment")
-    val FRAGMENT_PARAMETER = Name.identifier("\$fragment")
+    val CONTEXT = Name.identifier("context")
+    val CONTEXT_PARAMETER = Name.identifier("\$context")
     val CHANGED_PARAMETER = Name.identifier("\$changed")
     val STABILITY_FLAG = Name.identifier("\$stable")
     val DEFAULT_PARAMETER = Name.identifier("\$default")

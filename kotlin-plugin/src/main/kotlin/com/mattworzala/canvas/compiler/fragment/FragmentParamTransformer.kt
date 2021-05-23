@@ -376,7 +376,7 @@ class FragmentParamTransformer(
     @OptIn(ObsoleteDescriptorBasedAPI::class)
     private fun IrFunction.copyWithFragmentParam(): IrSimpleFunction {
         println("COPYING FUNCTION WITH FRAGMENT PARAM " + this.dump())
-        assert(explicitParameters.lastOrNull()?.name != NameConventions.FRAGMENT_PARAMETER) {
+        assert(explicitParameters.lastOrNull()?.name != NameConventions.CONTEXT_PARAMETER) {
             "Attempted to add fragment param to $this, but it has already been added."
         }
 
@@ -436,7 +436,7 @@ class FragmentParamTransformer(
 
             // $fragment
             val fragmentParam = fn.addValueParameter {
-                name = NameConventions.FRAGMENT_PARAMETER
+                name = NameConventions.CONTEXT_PARAMETER
                 type = fragmentType.makeNullable()
                 origin = IrDeclarationOrigin.DEFINED
                 isAssignable = true

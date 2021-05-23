@@ -26,7 +26,6 @@ fun SayHello(name: String) {
 fun TestFragment() {
     SayHello("world")
     SayHello("Michael")
-//    val a = TestA
     println("HELLO WORLD ")
     val b = currentFragmentContext
     println(b)
@@ -34,8 +33,6 @@ fun TestFragment() {
 }
 
 fun main() {
-//    (TestFragment() as @Fragment (FragmentContext) -> Unit)(FragmentContext())
-//      (TestFragment as Function2<FragmentContext, Int, Unit>)(FragmentContext(), 1)
     invokeFragment(FragmentContext()) {
         TestFragment()
     }

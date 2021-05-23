@@ -1011,7 +1011,7 @@ fun IrValueParameter.isComposerParam(): Boolean =
     (descriptor as? ValueParameterDescriptor)?.isComposerParam() ?: false
 
 fun ValueParameterDescriptor.isComposerParam(): Boolean =
-    name == NameConventions.FRAGMENT_PARAMETER &&
+    name == NameConventions.CONTEXT_PARAMETER &&
             type.constructor.declarationDescriptor?.fqNameSafe == FragmentFqNames.Fragment
 
 fun IrPluginContext.function(arity: Int): IrClassSymbol =
