@@ -3,7 +3,9 @@
 package com.mattworzala.canvas
 
 import com.mattworzala.canvas.extra.col
+import com.mattworzala.canvas.extra.indices
 import com.mattworzala.canvas.extra.row
+import com.mattworzala.canvas.extra.all
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.minestom.server.item.ItemStack
@@ -75,3 +77,9 @@ val BasicCounter = fragment(3) {
     }
 }
 
+@JvmField
+val BatchTest = fragment(9, 2) {
+    indices(all) {
+        item = ItemStack.of(Material.GREEN_STAINED_GLASS)
+    }
+}

@@ -73,6 +73,9 @@ public class MainDemo {
                 case "recipe_mask":
                     canvas.render(RecipeMaskTest.RecipeMaskTest, new DataImpl());
                     break;
+                case "batch":
+                    canvas.render(BasicTest.BatchTest, new DataImpl());
+                    break;
                 default:
                     event.getPlayer().sendMessage("No inventory named '" + event.getMessage() + "'!");
             }

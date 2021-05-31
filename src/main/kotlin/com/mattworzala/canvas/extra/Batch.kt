@@ -61,6 +61,12 @@ fun RenderContext.indices(vararg indices: Int, handler: SlotFunc = {}): List<Int
 fun RenderContext.indices(indices: IntRange, handler: SlotFunc = {}): List<Int> = apply(indices.toList(), handler)
 
 /**
+ * Returns a span of the entire fragment.
+ */
+val RenderContext.all: IntRange
+    get() = 0 until (width * height)
+
+/**
  * Sets a column (up and down) on a UI.
  *
  * @param col The column to set
