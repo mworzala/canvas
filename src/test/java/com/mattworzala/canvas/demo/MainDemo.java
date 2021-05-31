@@ -70,6 +70,9 @@ public class MainDemo {
                 case "flash":
                     canvas.render(FlashingTest.FlashingInv, new DataImpl());
                     break;
+                case "recipe_mask":
+                    canvas.render(RecipeMaskTest.RecipeMaskTest, new DataImpl());
+                    break;
                 default:
                     event.getPlayer().sendMessage("No inventory named '" + event.getMessage() + "'!");
             }

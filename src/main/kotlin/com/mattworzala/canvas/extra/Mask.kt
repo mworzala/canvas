@@ -1,6 +1,8 @@
 package com.mattworzala.canvas.extra
 
 import com.mattworzala.canvas.RenderContext
+import com.mattworzala.canvas.Slot
+import com.mattworzala.canvas.SlotFunc
 import com.mattworzala.canvas.asSlot
 import net.minestom.server.item.ItemStack
 import net.minestom.server.utils.validate.Check
@@ -15,21 +17,32 @@ import net.minestom.server.utils.validate.Check
  * inspired by the Minecraft recipe format.
  */
 class Mask {
-    private var binaryFill: ItemStack? = null
-    private var multiFill: MutableMap<Char, ItemStack>? = null
+    private var binaryFill: Slot? = null
+    private var multiFill: MutableMap<Char, Slot>? = null
 
     var pattern: String? = null
         set(value) { field = value?.filter { it != '\n' } }
 
     fun fill(fill: ItemStack) {
         if (multiFill != null) throw IllegalStateException("A mask may not be both a binary and multi mask.")
-        binaryFill = fill
+        binaryFill = fill.asSlot()
     }
 
-    fun fill(fill: Pair<Char, ItemStack>) {
+    fun fill(fill: SlotFunc) {
+        if (multiFill != null) throw IllegalStateException("A mask may not be both a binary and multi mask.")
+        binaryFill = Slot().apply(fill)
+    }
+
+    fun fill(ingredient: Char, item: ItemStack) {
         if (binaryFill != null) throw IllegalStateException("A mask may not be both a binary and multi mask.")
         if (multiFill == null) multiFill = mutableMapOf()
-        multiFill!![fill.first] = fill.second
+        multiFill!![ingredient] = item.asSlot()
+    }
+
+    fun fill(ingredient: Char, slot: SlotFunc) {
+        if (binaryFill != null) throw IllegalStateException("A mask may not be both a binary and multi mask.")
+        if (multiFill == null) multiFill = mutableMapOf()
+        multiFill!![ingredient] = Slot().apply(slot)
     }
 
     infix fun Char.with(item: ItemStack): Pair<Char, ItemStack> = this to item
@@ -40,10 +53,10 @@ class Mask {
         for (i in 0 until component.size) {
             val char = pattern!![i]
             if (binaryFill != null) {
-                if (char != '0') component.set(i, binaryFill!!.asSlot())
+                if (char != '0') component[i] = binaryFill!!
             } else {
                 val fill = multiFill!![char]
-                if (fill != null) component.set(i, fill.asSlot())
+                if (fill != null) component[i] = fill
             }
         }
     }
