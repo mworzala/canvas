@@ -1,8 +1,10 @@
 @file:JvmName("WikiFragments")
 
-package com.mattworzala.canvas
+package com.mattworzala.canvas.example
 
 import com.mattworzala.canvas.ext.InventoryHandle
+import com.mattworzala.canvas.fragment
+import com.mattworzala.canvas.useState
 import net.kyori.adventure.text.Component
 import net.minestom.server.item.Material
 import java.util.concurrent.ThreadLocalRandom
