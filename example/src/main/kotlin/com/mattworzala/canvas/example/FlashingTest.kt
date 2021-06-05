@@ -1,8 +1,12 @@
 @file:JvmName("FlashingTest")
 
-package com.mattworzala.canvas
+package com.mattworzala.canvas.example
 
 import com.mattworzala.canvas.extra.mask
+import com.mattworzala.canvas.fragment
+import com.mattworzala.canvas.useEffect
+import com.mattworzala.canvas.useState
+import com.mattworzala.canvas.useUpdate
 import net.minestom.server.item.ItemStack
 import net.minestom.server.item.Material
 import net.minestom.server.utils.time.TimeUnit

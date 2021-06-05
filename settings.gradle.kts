@@ -1,2 +1,3 @@
 rootProject.name = "canvas"
 
+include(":example")

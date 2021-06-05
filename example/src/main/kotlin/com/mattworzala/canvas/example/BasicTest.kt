@@ -1,11 +1,13 @@
 @file:JvmName("BasicTest")
 
-package com.mattworzala.canvas
+package com.mattworzala.canvas.example
 
 import com.mattworzala.canvas.extra.col
 import com.mattworzala.canvas.extra.indices
 import com.mattworzala.canvas.extra.row
 import com.mattworzala.canvas.extra.all
+import com.mattworzala.canvas.fragment
+import com.mattworzala.canvas.useState
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.minestom.server.item.ItemStack

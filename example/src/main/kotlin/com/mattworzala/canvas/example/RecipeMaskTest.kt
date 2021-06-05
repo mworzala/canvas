@@ -1,8 +1,9 @@
 @file:JvmName("RecipeMaskTest")
 
-package com.mattworzala.canvas
+package com.mattworzala.canvas.example
 
 import com.mattworzala.canvas.extra.mask
+import com.mattworzala.canvas.fragment
 import net.minestom.server.item.ItemStack
 import net.minestom.server.item.Material
 

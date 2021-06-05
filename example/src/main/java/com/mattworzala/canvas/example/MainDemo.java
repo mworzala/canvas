@@ -1,8 +1,7 @@
-package com.mattworzala.canvas.demo;
+package com.mattworzala.canvas.example;
 
 import com.mattworzala.canvas.*;
 import net.minestom.server.MinecraftServer;
-import net.minestom.server.data.DataImpl;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.player.PlayerChatEvent;
