@@ -6,8 +6,7 @@ import com.mattworzala.canvas.extra.mask
 import net.minestom.server.item.ItemStack
 import net.minestom.server.item.Material
 
-@JvmField
-val RecipeMaskTest = fragment(9, 5) {
+fun RecipeMaskTest() = fragment(9, 5) {
 
     mask {
         pattern = """
@@ -17,6 +16,10 @@ val RecipeMaskTest = fragment(9, 5) {
             BWWWWWWWB
             BBBBBBBBB
         """.trimIndent()
+
+        !{
+            // My code here
+        }
 
         fill('B') {
             item = ItemStack.of(Material.BLACK_STAINED_GLASS_PANE)

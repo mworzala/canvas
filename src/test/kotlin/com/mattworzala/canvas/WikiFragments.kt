@@ -7,13 +7,11 @@ import net.kyori.adventure.text.Component
 import net.minestom.server.item.Material
 import java.util.concurrent.ThreadLocalRandom
 
-@JvmField
-val FirstFragment = fragment(width = 9, height = 1) {
+fun FirstFragment() = fragment(width = 9, height = 1) {
     item(0, Material.GLOWSTONE_DUST)
 }
 
-@JvmField
-val FirstListener = fragment(9, 1) {
+fun FirstListener() = fragment(9, 1) {
     slot(0) {
         item(Material.GLOWSTONE_DUST)
         onClick {
@@ -22,38 +20,29 @@ val FirstListener = fragment(9, 1) {
     }
 }
 
-@JvmField
-val Composition = fragment(9, 2) {
-    put(FirstFragment, 0)
-    put(FirstListener, 1 * width)
+fun Composition() = fragment(9, 2) {
+    put(FirstFragment(), 0)
+    put(FirstListener(), 1 * width)
 }
 
-@JvmField
-val TitledFragment = fragment(width = 9, height = 1) {
+fun TitledFragment() = fragment(width = 9, height = 1) {
     inventory.title = Component.text("Titled Inventory")
 
     item(0, Material.GLOWSTONE_DUST)
 }
 
-@JvmField
-val WithData = fragment(1, 1) {
-    val name: String = data.get("name") ?: "Canvas"
-
+fun WithData(name: String = "Canvas") = fragment(1, 1) {
     item(0, Material.PAPER) {
         displayName(Component.text("Hello, $name"))
     }
 }
 
-@JvmField
-val CompositionWithData = fragment(9, 1) {
-    put(WithData, 0)
-    put(WithData, 1) {
-        set("name", "Michael")
-    }
+fun CompositionWithData() = fragment(9, 1) {
+    put(WithData(), 0)
+    put(WithData("Michael"), 1)
 }
 
-@JvmField
-val WithState = fragment(1, 1) {
+fun WithState() = fragment(1, 1) {
     var number by useState(-1)
 
     val displayString = if (number == -1) "Click for number!" else "Number: $number"
@@ -71,8 +60,7 @@ class MyMutableState {
     var number: Int = -1
 }
 
-@JvmField
-val WithMutableState = fragment {
+fun WithMutableState() = fragment {
     var mutable by useState(MyMutableState())
 
     val displayString = if (mutable.number == -1) "Click for number!" else "Number: ${mutable.number}"
@@ -81,17 +69,14 @@ val WithMutableState = fragment {
             displayName(Component.text(displayString))
         }
         onClick {
-            mutate {
-                mutable.number = ThreadLocalRandom.current().nextInt()
-            }
+            !{ mutable.number = ThreadLocalRandom.current().nextInt() }
         }
     }
 }
 
-@JvmField
-val CompositionWithState = fragment(9, 1) {
-    put(WithState, 0)
-    put(WithState, 1)
-    put(WithMutableState, 2)
+fun CompositionWithState() = fragment(9, 1) {
+    put(WithState(), 0)
+    put(WithState(), 1)
+    put(WithMutableState(), 2)
 }
 

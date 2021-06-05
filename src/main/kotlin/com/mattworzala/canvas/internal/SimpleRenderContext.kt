@@ -37,31 +37,27 @@ class SimpleRenderContext(
         override val handle: Inventory get() = container
     }
 
-    private var _data: Data? = null
-    override val data: Data
-        get() = _data ?: DataImpl()
+    override fun child(index: Int, fragment: Fragment) {
+        val childId: UniqueId = if (fragment.id is HashCodeUniqueId) {
+            HashCodeUniqueId(fragment.id)
+        } else fragment.id
 
-    override fun child(index: Int, fragment: Fragment, data: Data, dataHandler: Data.() -> Unit) {
-        val childId = Objects.hash(index, fragment)
+        println("Adding child with id $childId")
 
         @Suppress("UNCHECKED_CAST")
-        val child: RenderContext =
-            children.computeIfAbsent(childId, IntFunction {
+        val child: RenderContext = //todo dont just use child hashcode, can use uniqueid object
+            children.computeIfAbsent(childId.hashCode(), IntFunction {
                 SimpleRenderContext(this, index, fragment)
             }) as RenderContext
 
-        data.dataHandler()
-        child.render(data)
+        child.render()
     }
 
     /* Lifecycle */
 
     @Synchronized
-    override fun render(data: Data?) {
+    override fun render() {
         rendered = true
-        if (data != null) {
-            _data = data
-        }
 
         // Reset covered slots
         indices(all, Slot::reset)
@@ -88,7 +84,6 @@ class SimpleRenderContext(
         cleanupEffects.add(handler)
     }
 
-    override val flags: Int get() = fragment.flags
     override val width: Int get() = fragment.width
     override val height: Int get() = fragment.height
 
