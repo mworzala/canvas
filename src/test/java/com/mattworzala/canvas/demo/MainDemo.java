@@ -47,34 +47,40 @@ public class MainDemo {
 
             switch (event.getMessage().toLowerCase()) {
                 case "wiki:first_fragment":
-                    canvas.render(WikiFragments.FirstFragment);
+                    canvas.render(WikiFragments::FirstFragment);
                     break;
                 case "wiki:first_listener":
-                    canvas.render(WikiFragments.FirstListener);
+                    canvas.render(WikiFragments::FirstListener);
                     break;
                 case "wiki:composition":
-                    canvas.render(WikiFragments.Composition);
+                    canvas.render(WikiFragments::Composition);
                     break;
                 case "wiki:titled_fragment":
-                    canvas.render(WikiFragments.TitledFragment);
+                    canvas.render(WikiFragments::TitledFragment);
                     break;
                 case "wiki:composition_with_data":
-                    canvas.render(WikiFragments.CompositionWithData);
+                    canvas.render(WikiFragments::CompositionWithData);
                     break;
                 case "wiki:composition_with_state":
-                    canvas.render(WikiFragments.CompositionWithState);
+                    canvas.render(WikiFragments::CompositionWithState);
                     break;
                 case "basic":
-                    canvas.render(BasicTest.BasicItems, new DataImpl());
+                    canvas.render(BasicTest::BasicItems);
                     break;
                 case "flash":
-                    canvas.render(FlashingTest.FlashingInv, new DataImpl());
+                    canvas.render(FlashingTest::FlashingInv);
                     break;
                 case "recipe_mask":
-                    canvas.render(RecipeMaskTest.RecipeMaskTest, new DataImpl());
+                    canvas.render(RecipeMaskTest::RecipeMaskTest);
                     break;
                 case "batch":
-                    canvas.render(BasicTest.BatchTest, new DataImpl());
+                    canvas.render(BasicTest::BatchTest);
+                    break;
+                case "v2:basic":
+                    canvas.render(DataReworkTest::MySmartFragment);
+                    break;
+                case "v2:composition":
+                    canvas.render(DataReworkTest::SmartComposition);
                     break;
                 default:
                     event.getPlayer().sendMessage("No inventory named '" + event.getMessage() + "'!");

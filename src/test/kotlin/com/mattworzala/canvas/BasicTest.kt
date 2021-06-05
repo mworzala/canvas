@@ -13,21 +13,16 @@ import net.minestom.server.item.Material
 import kotlin.math.max
 import kotlin.math.min
 
-@JvmField
-val BasicItems = fragment(9, 5) {
+fun BasicItems() = fragment(9, 5) {
     this[0].item(Material.GOLD_INGOT)
 
     this[10].item(Material.GOLD_INGOT)
 
-    put(BasicCounter, 3)
+    put(BasicCounter(), 3)
 
-    put(SingleItemFromProps, 1) {
-        this["item"] = ItemStack.of(Material.IRON_SHOVEL, 5)
-    }
+    put(SingleItemFromProps(ItemStack.of(Material.IRON_SHOVEL, 5)), 1)
 
-    put(SingleItemFromProps, 25) {
-        this["item"] = ItemStack.of(Material.IRON_HELMET, 5)
-    }
+    put(SingleItemFromProps(ItemStack.of(Material.IRON_HELMET, 5)), 25)
 
     row(4) {
         item = ItemStack.of(Material.BLACK_STAINED_GLASS_PANE)
@@ -38,18 +33,16 @@ val BasicItems = fragment(9, 5) {
     }
 }
 
-@JvmField
-val SingleItemFromProps = fragment {
+fun SingleItemFromProps(displayItem: ItemStack) = fragment {
     this[0].apply {
-        item = data["item"]!!
+        item = displayItem
         onClick {
             println("SingleItem was clicked!!!")
         }
     }
 }
 
-@JvmField
-val BasicCounter = fragment(3) {
+fun BasicCounter() = fragment(3) {
     var counter by useState(1)
     item(0, Material.GLOWSTONE_DUST)
 
@@ -77,8 +70,7 @@ val BasicCounter = fragment(3) {
     }
 }
 
-@JvmField
-val BatchTest = fragment(9, 2) {
+fun BatchTest() = fragment(9, 2) {
     indices(all) {
         item = ItemStack.of(Material.GREEN_STAINED_GLASS)
     }
