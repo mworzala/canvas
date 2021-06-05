@@ -38,15 +38,11 @@ class SimpleRenderContext(
     }
 
     override fun child(index: Int, fragment: Fragment) {
-        val childId: UniqueId = if (fragment.id is HashCodeUniqueId) {
-            HashCodeUniqueId(fragment.id)
-        } else fragment.id
-
-        println("Adding child with id $childId")
+        println("Adding child with id $fragment.id")
 
         @Suppress("UNCHECKED_CAST")
         val child: RenderContext = //todo dont just use child hashcode, can use uniqueid object
-            children.computeIfAbsent(childId.hashCode(), IntFunction {
+            children.computeIfAbsent(fragment.id.hashCode(), IntFunction {
                 SimpleRenderContext(this, index, fragment)
             }) as RenderContext
 
