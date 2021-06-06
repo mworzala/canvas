@@ -50,7 +50,7 @@ interface RenderContext : SlotHolder {
      *
      * @param T The return type of the block, in case a variable needs to be elevated
      */
-    operator fun <T> (() -> T?).not() = invoke().also { render() }
+    operator fun <T> (() -> T).not() = invoke().also { render() }
 
     /* Lifecycle */
 

@@ -27,10 +27,10 @@ class StateDispenser(
     private val indices: IntArrayList = IntArrayList()
     private var index: Int = 0
 
-    fun <T> get(default: T): StateDelegate<T> = UNSAFE_get(default)
+    fun <T> get(default: () -> T): StateDelegate<T> = UNSAFE_get(default)
 
     @Suppress("FunctionName")
-    fun <T> UNSAFE_get(default: T, unsafe: Boolean = false): StateDelegate<T> {
+    fun <T> UNSAFE_get(default: () -> T, unsafe: Boolean = false): StateDelegate<T> {
         if (index == state.size)
             state.add(StateDelegate(context, default, unsafe))
         return state[index++] as StateDelegate<T>
@@ -60,8 +60,8 @@ class StateDispenser(
     }
 }
 
-class StateDelegate<T> internal constructor(private val context: RenderContext, default: T, private val unsafe: Boolean) {
-    private var value: T = default
+class StateDelegate<T> internal constructor(private val context: RenderContext, default: () -> T, private val unsafe: Boolean) {
+    private var value: T = default()
 
     operator fun getValue(nothing: Any?, property: KProperty<*>): T = value
 
