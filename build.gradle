@@ -39,8 +39,8 @@ nexusPublishing {
             nexusUrl = uri("https://s01.oss.sonatype.org/service/local/")
             snapshotRepositoryUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
 
-            username = sonatypeUsername
-            password = sonatypePassword
+            username = sonatypeUsername != null ? sonatypeUsername : System.getenv("sonatypeUsername")
+            password = sonatypePassword != null ? sonatypePassword : System.getenv("sonatypePassword")
         }
     }
 }
