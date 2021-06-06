@@ -1,0 +1,31 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        required: false
+        description: Tag version
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      sonatypeUsername: ${{ secrets.SONATYPE_USERNAME }}
+      sonatypePassword: ${{ secrets.SONATYPE_PASSWORD }}
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+      - name: Build
+        run: ./gradlew publishAllPublicationsToSonatypeRepository closeAndReleaseSonatypeStagingRepository
+      - name: Create tag
+        uses: mathieudutour/github-tag-action@v5.5
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          default_bump: patch
+          custom_tag: ${{ github.event.inputs.tag }}
