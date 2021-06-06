@@ -38,8 +38,6 @@ class SimpleRenderContext(
     }
 
     override fun child(index: Int, fragment: Fragment) {
-        println("Adding child with id $fragment.id")
-
         @Suppress("UNCHECKED_CAST")
         val child: RenderContext =
             children.computeIfAbsent(fragment.id) {
@@ -55,7 +53,7 @@ class SimpleRenderContext(
     override fun render() {
         rendered = true
 
-        // Reset covered slots
+        // Reset covered slots if flagged
         indices(all, Slot::reset)
 
         // Call renderer
