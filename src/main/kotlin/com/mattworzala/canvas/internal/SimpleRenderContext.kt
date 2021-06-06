@@ -21,7 +21,7 @@ class SimpleRenderContext(
     private val offset: Int,
     private val fragment: Fragment
 ) : RenderContext {
-    private val children: Int2ObjectMap<RenderContext> = Int2ObjectOpenHashMap()
+    private val children: MutableMap<UniqueId, RenderContext> = mutableMapOf()
     private val cleanupEffects: MutableList<Effect> = mutableListOf()
 
     override val state = StateDispenser(this) { println("An error has occurred, need to cleanup here.") }
@@ -41,10 +41,10 @@ class SimpleRenderContext(
         println("Adding child with id $fragment.id")
 
         @Suppress("UNCHECKED_CAST")
-        val child: RenderContext = //todo dont just use child hashcode, can use uniqueid object
-            children.computeIfAbsent(fragment.id.hashCode(), IntFunction {
+        val child: RenderContext =
+            children.computeIfAbsent(fragment.id) {
                 SimpleRenderContext(this, index, fragment)
-            }) as RenderContext
+            }
 
         child.render()
     }
@@ -83,7 +83,7 @@ class SimpleRenderContext(
     override val width: Int get() = fragment.width
     override val height: Int get() = fragment.height
 
-    override fun get(index: Int): Slot = parent.get(getIndexInParent(index))
+    override fun get(index: Int): Slot = parent[getIndexInParent(index)]
     override fun set(index: Int, slot: Slot) = parent.set(getIndexInParent(index), slot)
 
     private fun getIndexInParent(index: Int) = offset + (index % width) + (parent.width * (index / width))
