@@ -49,7 +49,7 @@ class Mask {
         Check.argCondition(component.size != pattern?.length, "Fragment and pattern must be the same size!")
 
         for (i in 0 until component.size) {
-            val char = pattern!![i]
+            val char = pattern?.get(i) ?: continue
             if (binaryFill != null) {
                 if (char != '0') component[i] = binaryFill!!
             } else {

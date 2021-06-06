@@ -26,7 +26,7 @@ class Slot internal constructor(
      * Will trigger when someone clicks on the slot.
      */
     var onClick: ClickHandler? = null
-        private set
+        private set //todo should allow setting directly instead of just onClick function
 
     /**
      * Kotlin DSL for defining item properties

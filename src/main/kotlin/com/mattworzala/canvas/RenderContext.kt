@@ -5,6 +5,10 @@ import com.mattworzala.canvas.internal.StateDispenser
 import net.minestom.server.data.Data
 import net.minestom.server.data.DataImpl
 
+//todo need to also rework memoization in this new update. it is relevant again since there can be expensive computation.
+
+//todo could provide a utility to create an effect on a Minestom event. An example could be rendering delta player position using move event
+
 /**
  * The class used as the base for a fragment hierarchy and the fragment DSL.
  *
@@ -25,8 +29,27 @@ interface RenderContext : SlotHolder {
 
     /* State safety */
 
-    //todo docs, should have an unsafe mutable property
-    // on the delegate which errors if you use it outside of a mutable block.
+    /**
+     * Creates a "mutation block" which will directly re render the fragment
+     * when its scope ends (the end of the block). Will also return the result
+     * of the block if there is a return value.
+     *
+     * This is used when state values are mutable. I cannot track updates to
+     * to them via their own mutation, so you can tell canvas that you are
+     * making updates and it will re render.
+     *
+     * ```
+     * class MyMutableClass(var name: String)
+     * val myMutableState by useState(MyMutableClass("Canvas"))
+     *
+     * onClick {
+     *     // Note the mutation block, since we are doing an indirect update.
+     *     !{ myMutableState.name = event.player.username }
+     * }
+     * ```
+     *
+     * @param T The return type of the block, in case a variable needs to be elevated
+     */
     operator fun <T> (() -> T?).not() = invoke().also { render() }
 
     /* Lifecycle */
@@ -40,4 +63,6 @@ interface RenderContext : SlotHolder {
     fun onCleanup(handler: Effect)
 
     fun put(fragment: Fragment, index: Int) = child(index, fragment)
+
+    fun put(fragment: Fragment, x: Int, y: Int) = child(getIndex(x, y), fragment)
 }
