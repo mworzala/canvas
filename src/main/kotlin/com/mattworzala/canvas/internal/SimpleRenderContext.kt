@@ -2,6 +2,8 @@ package com.mattworzala.canvas.internal
 
 import com.mattworzala.canvas.*
 import com.mattworzala.canvas.ext.InventoryHandle
+import com.mattworzala.canvas.extra.all
+import com.mattworzala.canvas.extra.indices
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.minestom.server.data.Data
@@ -61,8 +63,8 @@ class SimpleRenderContext(
             _data = data
         }
 
-        // Reset covered slots if flagged
-//        if (flags has CLEAR_ON_RENDER) apply((0 until size).toList(), Slot::reset)
+        // Reset covered slots
+        indices(all, Slot::reset)
 
         // Call renderer
         state.pushIndex()
