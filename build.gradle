@@ -1,7 +1,7 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version "1.4.21"
 
-    id 'maven' // Could switch to maven-publish, but need to make it work.
+    id 'maven-publish' // Could switch to maven-publish, but need to make it work.
     id 'signing'
     id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
 }
@@ -33,95 +33,6 @@ allprojects {
     }
 }
 
-ext.stagingDirectory = file("${buildDir}/stage")
-ext.repositoryDirectory = file("${buildDir}/repository")
-
-configurations {
-    // define a configuration just for using the nexus-ant-tasks, non-transitive as we use the uber jar
-    nexusStaging {
-        transitive = false
-    }
-}
-
-repositories {
-    maven {
-        url "${sonatypeRepository}/content/groups/public"
-    }
-}
-
-dependencies {
-    // use the uber jar which contains all necessary dependencies already,
-    // the nexusStaging scope will not be included in the pom or output artifacts
-    nexusStaging group: 'org.sonatype.nexus.ant', name: 'nexus-staging-ant-tasks', version: '1.6.3', classifier: 'uber'
-}
-
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
-    from javadoc
-}
-
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-artifacts {
-    archives javadocJar, sourcesJar
-}
-
-signing {
-    sign configurations.archives
-}
-
-group = "com.mattworzala"
-archivesBaseName = "canvas"
-version = "1.1.0"
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-            repository(url: sonatypeRepository) {
-                authentication(userName: sonatypeUsername, password: sonatypePassword)
-            }
-
-            snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: sonatypeUsername, password: sonatypePassword)
-            }
-
-            pom.project {
-                name 'canvas'
-                packaging 'jar'
-                description 'An inventory framework for Minestom'
-                url 'https://github.com/mworzala/canvas'
-
-                scm {
-                    connection 'scm:https://github.com/mworzala/canvas.git'
-                    developerConnection 'scm:https://github.com/mworzala/canvas.git'
-                    url 'https://github.com/mworzala/canvas'
-                }
-
-                licenses {
-                    license {
-                        name 'MIT License'
-                        url 'https://github.com/mworzala/canvas/blob/master/LICENSE.md'
-                    }
-                }
-
-                developers {
-                    developer {
-                        id 'mworzala'
-                        name 'Matt Worzala'
-                        email 'admin@mattworzala.com'
-                    }
-                }
-            }
-        }
-    }
-}
-
-//todo https://github.com/gradle-nexus/publish-plugin/issues/96 has an example with auto release
 nexusPublishing {
     repositories {
         sonatype {
@@ -130,11 +41,70 @@ nexusPublishing {
 
             username = sonatypeUsername
             password = sonatypePassword
-
-            stagingProfileId = "com.mattworzala"
         }
     }
 }
 
+repositories {
+}
 
+dependencies {
+}
 
+group = "com.mattworzala"
+archivesBaseName = "canvas"
+version = "1.1.1"
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+artifacts {
+    archives sourcesJar, javadocJar
+}
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            from project.components.java
+            artifact javadocJar
+            artifact sourcesJar
+
+            pom {
+                name = 'canvas'
+                description = 'An inventory framework for the Minestom server software'
+                url = 'https://github.com/mworzala/canvas'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://github.com/mworzala/canvas/blob/master/LICENSE'
+                    }
+                }
+
+                scm {
+                    connection = 'scm:git:github.com/mworzala/canvas.git'
+                    developerConnection = 'scm:git:ssh://github.com/mworzala/canvas.git'
+                    url = 'https://github.com/mworzala/canvas/tree/main'
+                }
+
+                developers {
+                    developer {
+                        id = 'mworzala'
+                        name = 'Matt Worzala'
+                        email = 'admin@mattworzala.com'
+                    }
+                }
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications
+}
