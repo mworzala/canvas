@@ -3,10 +3,6 @@ plugins {
 
     id 'maven' // Could switch to maven-publish, but need to make it work.
     id 'signing'
-
-
-    //todo could remove i think. I don't want to use minestom in api scope
-    id 'java-library'
 }
 
 allprojects {
@@ -24,7 +20,7 @@ allprojects {
     }
 
     dependencies {
-        implementation 'com.github.Minestom:Minestom:5d7a49c009'
+        implementation 'com.github.Minestom:Minestom:5d8ed5041f'
     }
 
     sourceCompatibility = '11'
