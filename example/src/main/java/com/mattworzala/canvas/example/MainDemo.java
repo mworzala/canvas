@@ -81,6 +81,10 @@ public class MainDemo {
                 case "v2:composition":
                     canvas.render(DataReworkTest::SmartComposition);
                     break;
+                case "page":
+                    canvas.render(Pagination::PagedMenu);
+                    break;
+
                 default:
                     event.getPlayer().sendMessage("No inventory named '" + event.getMessage() + "'!");
             }

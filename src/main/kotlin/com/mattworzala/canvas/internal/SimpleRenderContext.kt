@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
 import net.minestom.server.data.Data
 import net.minestom.server.data.DataImpl
+import net.minestom.server.entity.Player
 import net.minestom.server.inventory.Inventory
 import java.util.*
 import java.util.function.IntFunction
@@ -19,9 +20,9 @@ import java.util.function.IntFunction
 class SimpleRenderContext(
     private val parent: SlotHolder,
     private val offset: Int,
-    private val fragment: Fragment
+    private var fragment: Fragment
 ) : RenderContext {
-    private val children: MutableMap<UniqueId, RenderContext> = mutableMapOf()
+    private val children: MutableMap<Int, RenderContext> = mutableMapOf()
     private val cleanupEffects: MutableList<Effect> = mutableListOf()
 
     override val state = StateDispenser(this) { println("An error has occurred, need to cleanup here.") }
@@ -30,6 +31,8 @@ class SimpleRenderContext(
 
     override val container: Inventory
         get() = parent.container
+    override val owner: Player
+        get() = parent.owner
 
     /* Rendering */
 
@@ -39,10 +42,11 @@ class SimpleRenderContext(
 
     override fun child(index: Int, fragment: Fragment) {
         @Suppress("UNCHECKED_CAST")
-        val child: RenderContext =
-            children.computeIfAbsent(fragment.id) {
+        val child: SimpleRenderContext =
+            children.computeIfAbsent(Objects.hash(index, fragment.id)) {
                 SimpleRenderContext(this, index, fragment)
-            }
+            } as SimpleRenderContext
+        child.fragment = fragment // Must use the new fragment to account for new props
 
         child.render()
     }
@@ -53,7 +57,7 @@ class SimpleRenderContext(
     override fun render() {
         rendered = true
 
-        // Reset covered slots if flagged
+        // Reset covered slots
         indices(all, Slot::reset)
 
         // Call renderer

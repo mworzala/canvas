@@ -30,6 +30,8 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
      */
     override var container: Inventory = Inventory(InventoryType.CHEST_1_ROW, "Unnamed Canvas")
         private set
+    override val owner: Player
+        get() = player
 
     /**
      * All slots that need to be rerendered and changed.
