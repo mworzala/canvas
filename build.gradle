@@ -1,10 +1,14 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version "1.4.21"
 
-    id 'maven-publish' // Could switch to maven-publish, but need to make it work.
+    id 'maven-publish'
     id 'signing'
     id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
 }
+
+group = "com.mattworzala"
+archivesBaseName = "canvas"
+version = "1.1.2"
 
 allprojects {
     apply plugin: 'java'
@@ -39,8 +43,8 @@ nexusPublishing {
             nexusUrl = uri("https://s01.oss.sonatype.org/service/local/")
             snapshotRepositoryUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
 
-            username = System.getenv("sonatypeUsername") ?: ''
-            password = System.getenv("sonatypePassword") ?: ''
+            username = System.getenv("sonatypeUsername") ?: sonatypeUsername ?: ''
+            password = System.getenv("sonatypePassword") ?: sonatypePassword ?: ''
         }
     }
 }
@@ -50,10 +54,6 @@ repositories {
 
 dependencies {
 }
-
-group = "com.mattworzala"
-archivesBaseName = "canvas"
-version = "1.1.1"
 
 task javadocJar(type: Jar) {
     classifier = 'javadoc'

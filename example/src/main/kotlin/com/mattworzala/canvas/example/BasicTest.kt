@@ -10,8 +10,11 @@ import com.mattworzala.canvas.fragment
 import com.mattworzala.canvas.useState
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
+import net.minestom.server.entity.PlayerSkin
 import net.minestom.server.item.ItemStack
 import net.minestom.server.item.Material
+import net.minestom.server.item.metadata.PlayerHeadMeta
+import java.util.*
 import kotlin.math.max
 import kotlin.math.min
 
@@ -25,6 +28,11 @@ fun BasicItems() = fragment(9, 5) {
     put(SingleItemFromProps(ItemStack.of(Material.IRON_SHOVEL, 5)), 1)
 
     put(SingleItemFromProps(ItemStack.of(Material.IRON_HELMET, 5)), 25)
+
+    item(2, ItemStack.of(Material.PLAYER_HEAD).withMeta(PlayerHeadMeta::class.java) {
+        it.skullOwner(UUID.fromString("aceb326f-da15-45bc-bf2f-11940c21780c"))
+        it.playerSkin(PlayerSkin.fromUuid("aceb326f-da15-45bc-bf2f-11940c21780c"))
+    })
 
     row(4) {
         item = ItemStack.of(Material.BLACK_STAINED_GLASS_PANE)

@@ -21,7 +21,7 @@ jobs:
         with:
           java-version: '11'
           distribution: 'adopt'
-      - name: Build
+      - name: Deploy
         run: ./gradlew publishAllPublicationsToSonatypeRepository closeAndReleaseSonatypeStagingRepository
       - name: Create tag
         uses: mathieudutour/github-tag-action@v5.5
