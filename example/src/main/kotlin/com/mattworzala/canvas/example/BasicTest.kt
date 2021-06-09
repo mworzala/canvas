@@ -33,6 +33,19 @@ fun BasicItems() = fragment(9, 5) {
         it.skullOwner(UUID.fromString("aceb326f-da15-45bc-bf2f-11940c21780c"))
         it.playerSkin(PlayerSkin.fromUuid("aceb326f-da15-45bc-bf2f-11940c21780c"))
     })
+    slot(27) {
+        item = ItemStack.of(Material.PLAYER_HEAD).withMeta(PlayerHeadMeta::class.java) {
+            it.skullOwner(UUID.fromString("aceb326f-da15-45bc-bf2f-11940c21780c"))
+            it.playerSkin(PlayerSkin.fromUuid("aceb326f-da15-45bc-bf2f-11940c21780c"))
+        }
+
+        onClick { event ->
+            event.player.inventory.addItemStack(ItemStack.of(Material.PLAYER_HEAD).withMeta(PlayerHeadMeta::class.java) {
+                it.skullOwner(UUID.fromString("aceb326f-da15-45bc-bf2f-11940c21780c"))
+                it.playerSkin(PlayerSkin.fromUuid("aceb326f-da15-45bc-bf2f-11940c21780c"))
+            })
+        }
+    }
 
     row(4) {
         item = ItemStack.of(Material.BLACK_STAINED_GLASS_PANE)
