@@ -75,6 +75,9 @@ public class MainDemo {
                 case "batch":
                     canvas.render(BasicTest::BatchTest);
                     break;
+                case "effect":
+                    canvas.render(BasicTest::EffectExample);
+                    break;
                 case "v2:basic":
                     canvas.render(DataReworkTest::MySmartFragment);
                     break;

@@ -7,6 +7,7 @@ import com.mattworzala.canvas.extra.indices
 import com.mattworzala.canvas.extra.row
 import com.mattworzala.canvas.extra.all
 import com.mattworzala.canvas.fragment
+import com.mattworzala.canvas.useEffect
 import com.mattworzala.canvas.useState
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -16,6 +17,8 @@ import net.minestom.server.item.ItemStack
 import net.minestom.server.item.Material
 import net.minestom.server.item.metadata.PlayerHeadMeta
 import java.util.*
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlin.math.max
 import kotlin.math.min
 
@@ -100,5 +103,22 @@ fun BasicCounter() = fragment(3) {
 fun BatchTest() = fragment(9, 2) {
     indices(all) {
         item = ItemStack.of(Material.GREEN_STAINED_GLASS)
+    }
+}
+
+fun EffectExample() = fragment(9, 2) {
+    var myName by useState("Loading...");
+
+    useEffect(/* No dependencies, so will only execute once on open */) {
+        Executors.newSingleThreadScheduledExecutor().schedule({
+            println("Loaded name!")
+            myName = "John Smith"
+        }, 5, TimeUnit.SECONDS)
+        null
+    }
+
+    slot(0) {
+        item = ItemStack.of(Material.REDSTONE)
+            .withDisplayName(Component.text(myName))
     }
 }
