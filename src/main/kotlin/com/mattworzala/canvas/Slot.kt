@@ -5,9 +5,11 @@ import com.mattworzala.canvas.extra.row
 import net.minestom.server.entity.Player
 import net.minestom.server.event.inventory.InventoryPreClickEvent
 import net.minestom.server.inventory.Inventory
+import net.minestom.server.inventory.click.ClickType
 import net.minestom.server.item.ItemStack
 import net.minestom.server.item.ItemStackBuilder
 import net.minestom.server.item.Material
+import java.util.*
 
 typealias ItemFunc = ItemStackBuilder.() -> Unit
 typealias SlotFunc = Slot.() -> Unit
@@ -22,12 +24,7 @@ class Slot internal constructor(
      */
     var item: ItemStack = ItemStack.AIR
 ) {
-    /**
-     * The clicker in the slot.
-     * Will trigger when someone clicks on the slot.
-     */
-    var onClick: ClickHandler? = null
-        private set //todo should allow setting directly instead of just onClick function
+    private val clickHandlers: EnumMap<ClickType, ClickHandler> = EnumMap(ClickType::class.java);
 
     /**
      * Kotlin DSL for defining item properties
@@ -45,8 +42,10 @@ class Slot internal constructor(
      *
      * @param handler The lambda (triggers during a click)
      */
-    fun onClick(handler: ClickHandler) {
-        onClick = handler
+    fun onClick(vararg type: ClickType = arrayOf(ClickType.LEFT_CLICK), handler: ClickHandler) {
+        for (clickType in type) {
+            clickHandlers[clickType] = handler
+        }
     }
 
     /**
@@ -54,7 +53,12 @@ class Slot internal constructor(
      */
     fun reset() {
         item = ItemStack.AIR
-        onClick = null
+        clickHandlers.clear()
+    }
+
+    internal fun handleClick(slot: Slot, event: InventoryPreClickEvent) {
+        val handler = clickHandlers[event.clickType] ?: return
+        handler.invoke(slot, event)
     }
 }
 

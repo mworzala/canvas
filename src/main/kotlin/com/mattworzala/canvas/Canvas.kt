@@ -142,11 +142,8 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
         if (index >= container.size) return
         event.isCancelled = true
 
-        //todo handle click types
-        if (event.clickType != ClickType.LEFT_CLICK) return
-
         val slot = this.items[index] ?: return
-        slot.onClick?.invoke(slot, event)
+        slot.handleClick(slot, event)
     }
 
     internal fun handleInventoryClose(event: InventoryCloseEvent) = handleClose()

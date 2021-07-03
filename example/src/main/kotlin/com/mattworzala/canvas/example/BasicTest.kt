@@ -11,6 +11,7 @@ import com.mattworzala.canvas.useState
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.minestom.server.entity.PlayerSkin
+import net.minestom.server.inventory.click.ClickType
 import net.minestom.server.item.ItemStack
 import net.minestom.server.item.Material
 import net.minestom.server.item.metadata.PlayerHeadMeta
@@ -60,7 +61,10 @@ fun SingleItemFromProps(displayItem: ItemStack) = fragment {
     this[0].apply {
         item = displayItem
         onClick {
-            println("SingleItem was clicked!!!")
+            println("SingleItem was left clicked!!!")
+        }
+        onClick(ClickType.RIGHT_CLICK) {
+            println("SingleItem was right clicked!!!")
         }
     }
 }
