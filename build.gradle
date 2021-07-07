@@ -106,5 +106,10 @@ publishing {
 }
 
 signing {
+    if (System.env['CI'] != null) {
+        def signingKey = System.env['SIGNING_KEY']
+        def signingPassword = System.env['SIGNING_PASSWORD']
+        useInMemoryPgpKeys(signingKey, signingPassword)
+    }
     sign publishing.publications
 }
