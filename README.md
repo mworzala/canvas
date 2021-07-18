@@ -1,5 +1,5 @@
 # Canvas
-Canvas is a Kotlin-based inventory management system which takes *heavy inspiration* from React.
+Canvas is a Kotlin-based inventory management system which takes *heavy inspiration* from React. Also known by some as "That overly kotlin library".
 
 Those who have used React (especially React-Kotlin) should feel very at home. Those who have not,
 it provides reusability and convenience when making complex UIs.
