@@ -34,14 +34,14 @@ public class MainDemo {
 
         // Add an event callback to specify the spawning instance (and the spawn position)
         GlobalEventHandler globalEventHandler = MinecraftServer.getGlobalEventHandler();
-        globalEventHandler.addEventCallback(PlayerLoginEvent.class, event -> {
+        globalEventHandler.addListener(PlayerLoginEvent.class, event -> {
             final Player player = event.getPlayer();
             event.setSpawningInstance(instanceContainer);
             player.getInventory().addItemStack(ItemStack.of(Material.STONE, 100));
             player.setRespawnPoint(new Position(0, 42, 0));
         });
 
-        globalEventHandler.addEventCallback(PlayerChatEvent.class, event -> {
+        globalEventHandler.addListener(PlayerChatEvent.class, event -> {
             Canvas canvas = CanvasProvider.canvas(event.getPlayer());
 
             switch (event.getMessage().toLowerCase()) {
