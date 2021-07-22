@@ -1,7 +1,7 @@
 package com.mattworzala.canvas
 
 import net.minestom.server.MinecraftServer
-import net.minestom.server.utils.time.TimeUnit
+import java.time.Duration
 
 typealias Effect = () -> Unit
 
@@ -40,8 +40,8 @@ fun RenderContext.useEffect(vararg deps: Any, handler: () -> Effect?) {
     cleanup = handler()
 }
 
-fun RenderContext.useUpdate(interval: Long, unit: TimeUnit, func: Effect) = useEffect {
+fun RenderContext.useUpdate(duration: Duration, func: Effect) = useEffect {
     val task = MinecraftServer.getSchedulerManager().buildTask(func)
-        .delay(interval, unit).repeat(interval, unit).schedule()
+        .delay(duration).repeat(duration).schedule()
     return@useEffect task::cancel
 }
