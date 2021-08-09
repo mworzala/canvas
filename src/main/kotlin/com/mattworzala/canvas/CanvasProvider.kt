@@ -61,10 +61,10 @@ object CanvasProvider {
 
     init {
 //        MinecraftServer.getGlobalEventHandler().addEventCallback(InventoryOpenEvent::class.java, ::handleInventoryOpen)
-        MinecraftServer.getGlobalEventHandler().addEventCallback(InventoryPreClickEvent::class.java, ::handleInventoryClick)
-        MinecraftServer.getGlobalEventHandler().addEventCallback(InventoryCloseEvent::class.java, ::handleInventoryClose)
+        MinecraftServer.getGlobalEventHandler().addListener(InventoryPreClickEvent::class.java, ::handleInventoryClick)
+        MinecraftServer.getGlobalEventHandler().addListener(InventoryCloseEvent::class.java, ::handleInventoryClose)
 
-        MinecraftServer.getGlobalEventHandler().addEventCallback(PlayerDisconnectEvent::class.java, ::handlePlayerDisconnect)
+        MinecraftServer.getGlobalEventHandler().addListener(PlayerDisconnectEvent::class.java, ::handlePlayerDisconnect)
 
         // Fixed update task
         MinecraftServer.getSchedulerManager().buildTask {

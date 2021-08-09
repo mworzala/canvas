@@ -25,7 +25,7 @@ allprojects {
     }
 
     dependencies {
-        compileOnly 'com.github.Minestom:Minestom:5d8ed5041f'
+        compileOnly 'com.github.Minestom:Minestom:8f6f63b2c8'
     }
 
     sourceCompatibility = '11'
@@ -43,8 +43,8 @@ nexusPublishing {
             nexusUrl = uri("https://s01.oss.sonatype.org/service/local/")
             snapshotRepositoryUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
 
-            username = System.getenv("sonatypeUsername") ?: sonatypeUsername ?: ''
-            password = System.getenv("sonatypePassword") ?: sonatypePassword ?: ''
+            username = System.getenv("sonatypeUsername") ?: hasProperty("sonatypeUsername") ? sonatypeUsername : ''
+            password = System.getenv("sonatypePassword") ?: hasProperty("sonatypePassword") ? sonatypePassword : ''
         }
     }
 }
