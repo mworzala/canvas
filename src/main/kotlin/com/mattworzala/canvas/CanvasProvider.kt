@@ -69,7 +69,7 @@ object CanvasProvider {
         // Fixed update task
         MinecraftServer.getSchedulerManager().buildTask {
             canvases.values.forEach(Canvas::update)
-        }.repeat(1, TimeUnit.TICK).schedule()
+        }.repeat(1, TimeUnit.SERVER_TICK).schedule()
     }
 }
 
