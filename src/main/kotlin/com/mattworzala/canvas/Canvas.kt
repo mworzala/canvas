@@ -139,7 +139,7 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
 
     internal fun handleInventoryClick(event: InventoryPreClickEvent) {
         val index = event.slot
-        if (index >= container.size) return
+        if (index >= container.size || index < 0) return
         event.isCancelled = true
 
         val slot = this.items[index] ?: return

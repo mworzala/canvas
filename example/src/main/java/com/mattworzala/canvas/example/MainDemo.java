@@ -2,6 +2,7 @@ package com.mattworzala.canvas.example;
 
 import com.mattworzala.canvas.*;
 import net.minestom.server.MinecraftServer;
+import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.GlobalEventHandler;
 import net.minestom.server.event.player.PlayerChatEvent;
@@ -11,7 +12,6 @@ import net.minestom.server.instance.batch.ChunkBatch;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
-import net.minestom.server.utils.Position;
 import net.minestom.server.world.biomes.Biome;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,7 +38,7 @@ public class MainDemo {
             final Player player = event.getPlayer();
             event.setSpawningInstance(instanceContainer);
             player.getInventory().addItemStack(ItemStack.of(Material.STONE, 100));
-            player.setRespawnPoint(new Position(0, 42, 0));
+            player.setRespawnPoint(new Pos(0, 42, 0));
         });
 
         globalEventHandler.addListener(PlayerChatEvent.class, event -> {

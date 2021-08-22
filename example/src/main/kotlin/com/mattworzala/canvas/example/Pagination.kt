@@ -47,7 +47,7 @@ fun MenuItem(menuItem: ItemStack, delete: () -> Unit) = fragment {
     slot(0) {
         item = menuItem
         onClick {
-            owner.sendMessage("Deleting " + item.material.name)
+            owner.sendMessage("Deleting " + item.material.name())
             delete()
         }
     }
@@ -57,7 +57,8 @@ fun MenuItem(menuItem: ItemStack, delete: () -> Unit) = fragment {
 private fun createMenuItems(): MutableList<ItemStack> {
     val list = mutableListOf<ItemStack>()
     for (i in 0..50) {
-        list.add(ItemStack.of(Material.values()[ThreadLocalRandom.current().nextInt(0, Material.values().size)]))
+        val mat = Material.fromId(ThreadLocalRandom.current().nextInt(0, Material.values().size)) ?: Material.BARREL
+        list.add(ItemStack.of(mat))
     }
     return list
 }

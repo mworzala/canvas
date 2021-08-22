@@ -4,5 +4,5 @@ plugins {
 
 dependencies {
     implementation(project(":"))
-    implementation("com.github.Minestom:Minestom:2e8b3477bf")
+    implementation("com.github.Minestom:Minestom:1b55bd0137")
 }

@@ -12,11 +12,11 @@ import net.minestom.server.item.Material
 import net.minestom.server.utils.time.TimeUnit
 import java.time.Duration
 
-val WHITE_STAINED_GLASS_PANE = Material.WHITE_STAINED_GLASS_PANE.id
+val WHITE_STAINED_GLASS_PANE = Material.WHITE_STAINED_GLASS_PANE.id()
 
 fun FlashingInv() = fragment(9, 5) {
     var color: Int by useState(0)
-    useUpdate(Duration.of(5, TimeUnit.SERVER_TICK)) {
+    useUpdate(Duration.of(5, TimeUnit.DAY)) {
         color = (color + 1) % 16
     }
 
@@ -47,7 +47,7 @@ fun FlashingInv() = fragment(9, 5) {
             111111111
         """.trimIndent()
 
-        Material.fromId((WHITE_STAINED_GLASS_PANE + color).toShort())?.let {
+        Material.fromId(WHITE_STAINED_GLASS_PANE + color)?.let {
             fill(ItemStack.of(it))
         }
     }
