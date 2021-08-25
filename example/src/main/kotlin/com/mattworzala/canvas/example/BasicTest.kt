@@ -66,8 +66,8 @@ fun SingleItemFromProps(displayItem: ItemStack) = fragment {
         onClick {
             println("SingleItem was left clicked!!!")
         }
-        onClick(ClickType.RIGHT_CLICK) {
-            println("SingleItem was right clicked!!!")
+        onClick(ClickType.RIGHT_CLICK) { event ->
+            println("SingleItem was right clicked!!! $event")
         }
     }
 }
