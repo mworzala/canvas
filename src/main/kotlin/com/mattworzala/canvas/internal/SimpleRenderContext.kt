@@ -4,14 +4,10 @@ import com.mattworzala.canvas.*
 import com.mattworzala.canvas.ext.InventoryHandle
 import com.mattworzala.canvas.extra.all
 import com.mattworzala.canvas.extra.indices
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
-import net.minestom.server.data.Data
-import net.minestom.server.data.DataImpl
 import net.minestom.server.entity.Player
 import net.minestom.server.inventory.Inventory
+import net.minestom.server.item.ItemStack
 import java.util.*
-import java.util.function.IntFunction
 
 /**
  * A basic implementation of a [RenderContext]. Implementation details may vary, so this class should
@@ -22,6 +18,7 @@ class SimpleRenderContext(
     private val offset: Int,
     private var fragment: Fragment
 ) : RenderContext {
+
     private val children: MutableMap<Int, RenderContext> = mutableMapOf()
     private val cleanupEffects: MutableList<Effect> = mutableListOf()
 
@@ -89,4 +86,14 @@ class SimpleRenderContext(
     override fun set(index: Int, slot: Slot) = parent.set(getIndexInParent(index), slot)
 
     private fun getIndexInParent(index: Int) = offset + (index % width) + (parent.width * (index / width))
+
+    /* Auto formatting */
+
+    var currentIndex = 0
+
+    override fun item(item: ItemStack) {
+        item(currentIndex, item)
+        currentIndex++
+    }
+
 }

@@ -2,9 +2,6 @@ package com.mattworzala.canvas
 
 import com.mattworzala.canvas.ext.InventoryHandle
 import com.mattworzala.canvas.internal.StateDispenser
-import net.minestom.server.data.Data
-import net.minestom.server.data.DataImpl
-import net.minestom.server.entity.Player
 
 //todo need to also rework memoization in this new update. it is relevant again since there can be expensive computation.
 
