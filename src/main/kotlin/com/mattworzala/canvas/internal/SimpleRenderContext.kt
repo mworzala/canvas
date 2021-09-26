@@ -91,9 +91,4 @@ class SimpleRenderContext(
 
     var currentIndex = 0
 
-    override fun item(item: ItemStack) {
-        item(currentIndex, item)
-        currentIndex++
-    }
-
 }

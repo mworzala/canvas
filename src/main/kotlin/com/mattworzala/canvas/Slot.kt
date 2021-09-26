@@ -118,10 +118,6 @@ interface SlotHolder {
     fun item(x: Int, y: Int, item: ItemStack) { get(getIndex(x, y)).item = item }
 
     fun item(index: Int, item: ItemStack) { get(index).item = item }
-
-    /* Automatic formatting */
-
-    fun item(item: ItemStack)
 }
 
 internal fun ItemStack.asSlot(): Slot = Slot(this)
