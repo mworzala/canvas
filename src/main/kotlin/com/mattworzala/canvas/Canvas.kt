@@ -5,13 +5,11 @@ package com.mattworzala.canvas
 import com.mattworzala.canvas.internal.SimpleRenderContext
 import it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue
 import it.unimi.dsi.fastutil.ints.IntPriorityQueue
-import net.minestom.server.data.Data
 import net.minestom.server.entity.Player
 import net.minestom.server.event.inventory.InventoryCloseEvent
 import net.minestom.server.event.inventory.InventoryPreClickEvent
 import net.minestom.server.inventory.Inventory
 import net.minestom.server.inventory.InventoryType
-import net.minestom.server.inventory.click.ClickType
 
 private const val CHEST_INVENTORY_WIDTH = 9
 
@@ -189,7 +187,7 @@ class Canvas internal constructor(private val player: Player) : SlotHolder {
         } else {
             // New inventory
             container = Inventory(type, "Unnamed Canvas")
-            items = arrayOfNulls(type.additionalSlot)
+            items = arrayOfNulls(type.size)
         }
     }
 
