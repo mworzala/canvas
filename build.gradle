@@ -25,7 +25,7 @@ allprojects {
     }
 
     dependencies {
-        compileOnly 'com.github.Minestom:Minestom:4ee5cbe424'
+        compileOnly 'com.github.Minestom:Minestom:7867313290'
     }
 
     sourceCompatibility = '17'
