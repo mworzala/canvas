@@ -111,11 +111,6 @@ public class MainDemo {
         }
 
         @Override
-        public void fillBiomes(@NotNull Biome[] biomes, int chunkX, int chunkZ) {
-            Arrays.fill(biomes, Biome.PLAINS);
-        }
-
-        @Override
         public List<ChunkPopulator> getPopulators() {
             return null;
         }

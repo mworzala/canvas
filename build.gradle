@@ -1,5 +1,5 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version "1.5.21"
+    id 'org.jetbrains.kotlin.jvm' version "1.6.10"
 
     id 'maven-publish'
     id 'signing'
@@ -25,14 +25,14 @@ allprojects {
     }
 
     dependencies {
-        compileOnly 'com.github.Minestom:Minestom:1b55bd0137'
+        compileOnly 'com.github.Minestom:Minestom:7867313290'
     }
 
-    sourceCompatibility = '11'
-    targetCompatibility = '11'
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
 
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
-        kotlinOptions.jvmTarget = "11"
+        kotlinOptions.jvmTarget = "17"
         kotlinOptions.freeCompilerArgs = ["-Xinline-classes"]
     }
 }

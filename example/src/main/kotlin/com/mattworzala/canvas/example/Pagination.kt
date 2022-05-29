@@ -7,33 +7,31 @@ import com.mattworzala.canvas.useState
 import net.minestom.server.item.ItemStack
 import net.minestom.server.item.Material
 import java.util.concurrent.ThreadLocalRandom
-import java.util.stream.Collectors
 
-private const val PAGE_SIZE: Long = 9 * 4
+private const val PAGE_SIZE = 9 * 4
 
 fun PagedMenu() = fragment(9, 5) {
     val menuItems by useState(createMenuItems())
-    var page by useState(0);
+    var page by useState(0)
 
-    val pageItems = menuItems.stream()
-        .skip(page * PAGE_SIZE)
-        .limit(PAGE_SIZE)
-        .collect(Collectors.toList());
+    val pageItems = menuItems
+        .drop(page * PAGE_SIZE)
+        .take(PAGE_SIZE)
 
     val delete: (item: Int) -> Unit = {
-        !{ menuItems.removeAt((page * PAGE_SIZE.toInt()) + it) }
+        !{ menuItems.removeAt((page * PAGE_SIZE) + it) }
     }
 
     put(MenuPage(pageItems, delete), 0)
 
     slot(0, 4) {
         item = ItemStack.of(Material.RED_STAINED_GLASS_PANE)
-        onClick { page = page - 1 }
+        onClick { page -= 1 }
     }
 
     slot(8, 4) {
         item = ItemStack.of(Material.GREEN_STAINED_GLASS_PANE)
-        onClick { page = page + 1 }
+        onClick { page += 1 }
     }
 }
 

@@ -2,10 +2,10 @@
 
 package com.mattworzala.canvas.example
 
+import com.mattworzala.canvas.extra.all
 import com.mattworzala.canvas.extra.col
 import com.mattworzala.canvas.extra.indices
 import com.mattworzala.canvas.extra.row
-import com.mattworzala.canvas.extra.all
 import com.mattworzala.canvas.fragment
 import com.mattworzala.canvas.useEffect
 import com.mattworzala.canvas.useState
@@ -90,7 +90,7 @@ fun BasicCounter() = fragment(3) {
     }
 
     // Increment
-    this[0].apply {
+    this[2].apply {
         onClick {
             counter = min(64, counter + 1)
         }
